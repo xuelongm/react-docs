@@ -17,7 +17,15 @@ module.exports = {
         ],
         sidebar: [
             '/',
-            '/concept'
+            '/concept',
+            {
+                title: 'render',
+                children: [
+                    '/render/overview',
+                    '/render/capture'
+                ]
+            },
+
         ],
         lastUpdated: 'Last Updated',
         smoothScroll: true,

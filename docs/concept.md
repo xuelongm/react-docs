@@ -192,8 +192,6 @@ if (ctor.prototype && ctor.prototype.isPureReactComponent) {
   }
 ```
 
-
-
 从react.createElement中我们知道，无论ClassCompenent还是FunctionCompenent最终都会挂载到ReactElement对象的type中，形成如下对象：
 
 ```javascript
@@ -210,7 +208,105 @@ if (ctor.prototype && ctor.prototype.isPureReactComponent) {
 }
 ```
 
+那么React Element和Fiber有什么关系，从上述代码中，我们发现React Element并没有**schedule**，**schedule**，**render**所需的信息，那么这些信息就应该保存在Fiber中了。
 
+## Fiber
 
+```typescript
+export type Fiber = {
+  // 当前Fiber的类型，比如FunctionComponent
+  tag: WorkTag
+	// key
+  key: null | string,
+  // 当前Fiber对应的节点的类型，classComponent FunctionCompoent element.tagName，一般和下面的type相同
+  elementType: any,
+	// 和上面的elementType相同，但是在LazyComponent时，type=null
+  type: any,
+  // satteNode 有四种情况
+  // 1. functionCoponent stateNode = null
+  // 2. classComponent stateNode = instance
+  // 3. Dom类型， stateNode 为当前dom实例
+  // 4. rootFiber stateNode = fiberRoot
+  stateNode: any,
+  // parent Fibers
+  return: Fiber | null,
+  // 当前fiber的第一个子节点
+  child: Fiber | null,
+  // 当前节点的兄弟节点
+  sibling: Fiber | null,
+  // 当前节点的位置
+  index: number,
+  // ref
+  ref:
+    | null
+    | (((handle: mixed) => void) & {_stringRef: ?string, ...})
+    | RefObject,
+  // 从父节点中出入的props
+  // 对象
+  pendingProps: any,
+  // 保存本次更新，下次更新对比用，在beiginWork完成后赋值                        
+  memoizedProps: any,
 
+  // 属性更新队列
+  updateQueue: mixed,
+
+  // 保存本次status
+  memoizedState: any,
+
+  dependencies: Dependencies | null,
+
+  /**
+  NoMode = 0b00000;
+	StrictMode = 0b00001;
+  BlockingMode = 0b00010;
+	ConcurrentMode = 0b00100;
+	ProfileMode = 0b01000;
+	DebugTracingMode = 0b10000;
+  **/
+  mode: TypeOfMode,
+  // Effect 标记
+  flags: Flags,
+  subtreeFlags: Flags,
+  deletions: Array<Fiber> | null,
+	// 下一个effect
+  nextEffect: Fiber | null,
+	// 本次更新的第一个effect
+  firstEffect: Fiber | null,
+  // 本次更新最后一个effec                            
+  lastEffect: Fiber | null,
+	// lane模型优先级
+  lanes: Lanes,                       
+  childLanes: Lanes,
+  // 双缓存中，指向另一棵树的节点
+  alternate: Fiber | null,
+	// 渲染当前节点，及其后代节点所用的时间，只有在enableProfilerTimer开启时才会计算
+  actualDuration?: number,
+  // 表示启动渲染的时间
+  actualStartTime?: number,
+
+  // 本次渲染所用时间
+  selfBaseDuration?: number,
+	// 时间总和，在commite阶段计算
+  treeBaseDuration?: number,
+
+  // Conceptual aliases
+  // workInProgress : Fiber ->  alternate The alternate used for reuse happens
+  // to be the same as work in progress.
+  // __DEV__ only
+  _debugID?: number,
+  _debugSource?: Source | null,
+  _debugOwner?: Fiber | null,
+  _debugIsCurrentlyTiming?: boolean,
+  _debugNeedsRemount?: boolean,
+
+  // Used to verify that the order of hooks does not change between renders.
+  _debugHookTypes?: Array<HookType> | null,
+|};
+```
+
+React在mount阶段，会根据JSX对象，计算出Fiber对象，并将JSX对象保存在pendingProps中，在beignWork后JSX对象也会保存在memoizedProps中，输出到子节点中。
+
+在update时Reconciler会将JSX和Fiber上的属性惊醒对比，来确定当前节点是否需要更新。并将对比结果的标记打到flag上。
+
+**现在我们已经知道中的主要数据结构，下一章我们将正式开始render阶段**
 
