@@ -382,6 +382,7 @@ function updateClassInstance(
         instance.UNSAFE_componentWillUpdate(newProps, newState, nextContext);
       }
     }
+    // 添加更新的标记update标记
     if (typeof instance.componentDidUpdate === 'function') {
       workInProgress.flags |= Update;
     }
@@ -423,4 +424,143 @@ function updateClassInstance(
   return shouldUpdate;
 }
 ```
+
+好，下面我们来看看最后一个函数，`finishClassComponent`
+
+### finishClassComponent
+
+- 调用render的方法
+- 调用diff算法入口`reconcileChildren`
+
+```javascript
+function finishClassComponent(
+  current: Fiber | null,
+  workInProgress: Fiber,
+  Component: any,
+  shouldUpdate: boolean,
+  hasContext: boolean,
+  renderLanes: Lanes,
+) {
+    // Refs should update even if shouldComponentUpdate returns false
+    // 标记当前fiber是否有ref
+    markRef(current, workInProgress);
+
+    const didCaptureError = (workInProgress.flags & DidCapture) !== NoFlags;
+    // 优化
+    if (!shouldUpdate && !didCaptureError) {
+      if (hasContext) {
+        invalidateContextProvider(workInProgress, Component, false);
+      }
+      return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
+    }
+
+		// 获取当前实例，new Class
+    const instance = workInProgress.stateNode;
+
+    // Rerender
+    ReactCurrentOwner.current = workInProgress;
+    let nextChildren;
+    if (
+      didCaptureError &&
+      typeof Component.getDerivedStateFromError !== 'function'
+    ) {
+      nextChildren = null;
+      if (enableProfilerTimer) {
+        stopProfilerTimerIfRunning(workInProgress);
+      }
+    } else {
+      // 省略部分代码
+      // 调用render
+      nextChildren = instance.render();
+    }
+    workInProgress.flags |= PerformedWork;
+    if (current !== null && didCaptureError) {
+      // 调用diff算法
+      forceUnmountCurrentAndReconcile(
+        current,
+        workInProgress,
+        nextChildren,
+        renderLanes,
+      );
+    } else {
+      // 调用diff算法
+      reconcileChildren(current, workInProgress, nextChildren, renderLanes);
+    }
+		// ...省略
+    return workInProgress.child;
+}
+```
+
+## updateFunctionComponent
+
+- 调用函数以及hooks函数
+- 调用diff入口
+
+```javascript
+function updateFunctionComponent(
+  current,
+  workInProgress,
+  Component,
+  nextProps: any,
+  renderLanes,
+) {
+ 	// ...省略，处理context
+  if (__DEV__) {
+    //...省略
+  } else {
+    // 调用函数以及hooks，hook后期讲
+    nextChildren = renderWithHooks(
+      current,
+      workInProgress,
+      Component,
+      nextProps,
+      context,
+      renderLanes,
+    );
+  }
+	// 性能优化
+  if (current !== null && !didReceiveUpdate) {
+    bailoutHooks(current, workInProgress, renderLanes);
+    return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
+  }
+
+  // 调用diff入口
+  workInProgress.flags |= PerformedWork;
+  reconcileChildren(current, workInProgress, nextChildren, renderLanes);
+  return workInProgress.child;
+}
+```
+
+## updateHostComponent
+
+- 调用diff入口
+
+```javascript
+function updateHostComponent(
+  current: Fiber | null,
+  workInProgress: Fiber,
+  renderLanes: Lanes,
+) {
+  // ...忽略，处理context
+  // 判断子节点是否为唯一的文本节点，如果是，则进行优化，直接complete
+  const isDirectTextChild = shouldSetTextContent(type, nextProps);
+
+  if (isDirectTextChild) {
+    nextChildren = null;
+  } else if (prevProps !== null && shouldSetTextContent(type, prevProps)) {
+    workInProgress.flags |= ContentReset;
+  }
+	// 标记ref标记
+  markRef(current, workInProgress);
+  // diff
+  reconcileChildren(current, workInProgress, nextChildren, renderLanes);
+  return workInProgress.child;
+}
+```
+
+## 总结
+
+从上面可以看出，updateClassComponent，updateFunctionComponent和updateHostComponent函数最终都会调用reconcileChildren，也就是diff算法入口，有关diff算法，我们先按下不表，下一章我们来看看冒泡阶段。
+
+> 本文章有部分参考[React技术揭秘](https://react.iamkasong.com/)
 

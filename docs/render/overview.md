@@ -138,6 +138,6 @@ ReactDOM.render(
 ## 总结
 
 本章大致了解render阶段主要功能，下一章我们将开始render过程中的细节讲解
-
+> 本文章有部分参考[React技术揭秘](https://react.iamkasong.com/)
 
 

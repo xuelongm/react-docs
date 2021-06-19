@@ -22,7 +22,8 @@ module.exports = {
                 title: 'render',
                 children: [
                     '/render/overview',
-                    '/render/capture'
+                    '/render/capture',
+                    '/render/bubble'
                 ]
             },
 
