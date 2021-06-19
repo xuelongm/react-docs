@@ -367,25 +367,101 @@ firstEffect: Fiber | null,
 lastEffect: Fiber | null,
 ```
 
-那么effect list怎么形成的呢：
+那么effect list怎么形成的呢？
 
-- 
+- 处理子节点
+  1. 处理父节点的`firstEffect`，如果`returnFiber.firstEffect === null`则将当前节点的`firstEffect`赋值给父节点。注意这是在commit阶段处理的第一个节点
+  2. 处理父节点`lastEffect`
+- 处理当前节点
+  1. 讲当前节点加入到effect list中
+
+```tsx
+if (returnFiber !== null && (returnFiber.flags & Incomplete) === NoFlags) {
+    // 处理child节点
+    if (returnFiber.firstEffect === null) {
+      returnFiber.firstEffect = completedWork.firstEffect;
+    }
+    if (completedWork.lastEffect !== null) {
+      if (returnFiber.lastEffect !== null) {
+        returnFiber.lastEffect.nextEffect = completedWork.firstEffect;
+      }
+      returnFiber.lastEffect = completedWork.lastEffect;
+    }
+    const flags = completedWork.flags;
+  	// 讲当前节点加入加入到effect中
+    if (flags > PerformedWork) {
+      if (returnFiber.lastEffect !== null) {
+        returnFiber.lastEffect.nextEffect = completedWork;
+      } else {
+        returnFiber.firstEffect = completedWork;
+      }
+      returnFiber.lastEffect = completedWork;
+    }
+}
+```
+
+讲到这里你可能还是不理解这个链表怎么形成的，举个栗子来说明，如下图：
+
+<br>
+
+<img src='../../assets/effect-list-demo.png'>
+
+</br>
 
 
 
+整个流程如下：
+
+- p节点complete，此时`returnFiber`为test节点 
+  1. `returnFiber`的`firstEffect`为null，`returnFiber.firstEffect = completedWork.firstEffect`，completedWork.firstEffect === null，所以赋值完成后`returnFiber.firstEffect` === null
+  2. `returnFiber.firstEffect = completedWork`
+  3. `returnFiber.lastEffect = completedWork`
+
+<br>
+
+​	<img src='../../assets/effect-list-demo1.png'>
+
+</br>
+
+- button 节点 complete，此时`returnFiber`为test节点 
+  1. `returnFiber.lastEffect.nextEffect = completedWork`，也就是说，p.nextEffect = button
+  2. `returnFiber.lastEffect = completedWork`，texst.lastEffect = button
+
+<br>
+
+​	<img src='../../assets/effect-list-demo2.png'>
+
+</br>
 
 
 
+- test 节点 complete，此时`returnFiber`为div节点 
+  1. ` returnFiber.firstEffect = completedWork.firstEffect`，即：div.firstEffect= p
+  2. `returnFiber.lastEffect = completedWork.lastEffect`,  即：div.lastEffect = button
+  3. `returnFiber.lastEffect.nextEffect = completedWork`，即：button.next = test
+  4. returnFiber.lastEffect = completedWork，即：div.lastEffect = test
 
+<br>
 
+​	<img src='../../assets/effect-list-demo3.png'>
 
+</br>
 
+- div 节点 complete，此时`returnFiber`为app节点 
+  1. ` returnFiber.firstEffect = completedWork.firstEffect`，即：app.firstEffect= p
+  2. `returnFiber.lastEffect = completedWork.lastEffect`，即：app.lastEffect = test
+  3. `returnFiber.lastEffect.nextEffect = completedWork`，即：test.next = div
+  4. `returnFiber.lastEffect = completedWork`，即：app.lastEffect= div
 
+<br>
 
+​	<img src='../../assets/effect-list-demo4.png'>
 
+</br>
 
+## 总结
 
+至此我们在commit阶段的工作全部完成，有上述effectList可以看出，firstEffect节点为P节点，也就是说，在commit阶段的更新是从下向上的更新（简而言之，子组件的`componentDidUpdate`生命周期比父组件早调用）。
 
-
-
+下一章我们进行遗留问题，diff算法的学习
 
