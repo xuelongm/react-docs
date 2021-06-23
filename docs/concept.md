@@ -22,7 +22,7 @@ function App() {
     return React.createElement("div", null, React.createElement("p", null, "You clicked ", count, " times"));
 }
 ```
-> 因为编译后，后调用React.createElement，这就是为什么在React17前每个文件都要现实的导入React的原因, 否则就会在运行的时候报 **未定义变量 React**错误。
+> 因为编译后，后调用React.createElement，这就是为什么在React17前每个文件都要现实的导入React的原因, 否则就会在运行的时候报 **未定义变量 React**错误。在React17后不需要显示引入React了。
 
 由此可见**JSX**最终会被编译成react.createElement，那么react.createElement做什么了？
 ## react.createElement
@@ -103,7 +103,7 @@ export function createElement(type, config, children) {
 
 - 将config中的key和ref提取出来单独处理
 - 将config中除了key，ref，self，source外的属性赋值给props
-- 如果type上defaultProps属性，处理defaultProps属性
+- 如果type（一般是class component）上有defaultProps属性，处理defaultProps属性
 - 调用ReactElement
 
 从上述代码中，我们可以看到react.createElement最终会调用ReactElement。
@@ -136,13 +136,13 @@ export function isValidElement(object) {
 }
 ```
 
-从代码中可以看出，object.$$typeof === REACT_ELEMENT_TYPE就是合法React Element。综上所述React Element就是JSX运行时的结果，也就是每个JSX最终都会被转成React Element。
+从代码中可以看出，`object.$$typeof === REACT_ELEMENT_TYPE`就是合法React Element。综上所述React Element就是JSX运行时的结果，也就是每个JSX最终都会被转成React Element。
 
 那么React Compenent呢？
 
 ## React Compenent
 
-众所周知在React中有两种Compenent，一种是ClassCompenent，一种FunctionCompenet。其中ClassCompenent都会继承React.Component/React.PureComponent，那么我们先来看看两种对象：
+众所周知在React中有两种Compenent，一种是`ClassCompenent`，一种`FunctionCompenet`。其中`ClassCompenent`都会继承`React.Component`/`React.PureComponent`，那么我们先来看看两种对象：
 
 ```javascript
 // Component
@@ -208,7 +208,7 @@ if (ctor.prototype && ctor.prototype.isPureReactComponent) {
 }
 ```
 
-那么React Element和Fiber有什么关系，从上述代码中，我们发现React Element并没有**schedule**，**schedule**，**render**所需的信息，那么这些信息就应该保存在Fiber中了。
+那么React Element和Fiber有什么关系，从上述代码中，我们发现React Element并没有**schedule**，**schedule**，**render**所需的信息，由此可以猜测，这些信息就应该保存在Fiber中了。
 
 ## Fiber
 
@@ -309,4 +309,6 @@ React在mount阶段，会根据JSX对象，计算出Fiber对象，并将JSX对�
 在update时Reconciler会将JSX和Fiber上的属性惊醒对比，来确定当前节点是否需要更新。并将对比结果的标记打到flag上。
 
 **现在我们已经知道中的主要数据结构，下一章我们将正式开始render阶段**
+
+>本文部分观点参考：https://react.iamkasong.com/
 
