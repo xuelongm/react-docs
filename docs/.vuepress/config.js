@@ -41,5 +41,5 @@ module.exports = {
             headerAnchorSelector: '.header-anchor'
         }
     ],
-    base: '/docs/'
+    base: '/react-docs/'
 };
