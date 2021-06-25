@@ -1,6 +1,7 @@
+# 首页
 > 本文当github地址为：https://github.com/xuelongm/react-docs
 欢迎各位大佬来issues
-# 首页
+
 在开始本文档之前已阅读了近两个月的源码，整个过程比想象的要难，React源码的复杂度和Vue相比不在一个量级上，其主要难点有两方面：
 - 涉及很多的概念，包括Fiber，双缓存，lane模型，小顶堆（调度时使用），分片渲染（concurrent模式），requestIdlecallback等等。
 - React调度模型，React的调度模型包括两个部分，一是Line模型，二是React Scheduler模型，在调度过程中还会涉及两个模型的相互转换，这就更加复杂难懂。

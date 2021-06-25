@@ -1,9 +1,9 @@
 # 捕获阶段
-从本章开始我们开始介绍render阶段的详细过程。那么我们先从捕获阶段的入口函数开始。
+本章将要详细介绍render阶段的**捕获阶段**。那么我们先从**捕获阶段**的入口函数`beginWork`开始。
 
-## beignWork
+## beginWork
 
-`beignwork`函数在ReactFiberBeginWork.old.js中，全部函数大概有5，600行，所以我会去掉一些不太重要的部分，我们只关注重要部分。
+`beginWork`函数在`ReactFiberBeginWork.old.js`中，全部函数大概有5，600行，我们逐行解释，只要关注其中最重要的逻辑即可。
 
 ```javascript
 function beginWork(
@@ -35,7 +35,11 @@ function beginWork(
 
 ## current不为空
 
-在什么情况下current会不为空呢，从`beignWork`的调用处可以看出current=workInProgress.alternate，那么workInProgress.alternate什么情况为空，我们知道，workInProgress.alternate指向挡墙渲染的节点，当前节点已经被挂载的情况下workInProgress.alternate不为空，，由此可见，当current不为空，表示此节点进行的是更新，由此可以得出结论，此判断是为了更新阶段的性能优化。
+在什么情况下`current`会不为空呢？从`beignWork()`的调用处可以看出`current=workInProgress.alternate`，也就是说在`workInProgress.alternate`不为空的情况下，`current`肯定不会为空，我们知道，workInProgress.alternate指向当前渲染的节点，由此可见，当current不为空时，表示当前节点已经`mount`过，本次对于此节点的操作都是更新操作。
+
+`if`分支主要做了以下几件事：
+- 对比`oldProps`和`newProps`，判断是否需要更新
+- 判断当前fiber的优先级是否包含在本次更新的优先级中，如果不包含则不进行更新
 
 ```javascript
 if (current !== null) {
