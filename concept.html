@@ -8,7 +8,7 @@
     
     <meta name="description" content="docs React 17x">
     
-    <link rel="preload" href="/react-docs/assets/css/0.styles.81a1deae.css" as="style"><link rel="preload" href="/react-docs/assets/js/app.723fa765.js" as="script"><link rel="preload" href="/react-docs/assets/js/2.e8a0a8e6.js" as="script"><link rel="preload" href="/react-docs/assets/js/10.979bfed3.js" as="script"><link rel="prefetch" href="/react-docs/assets/js/11.0122da87.js"><link rel="prefetch" href="/react-docs/assets/js/3.28923cae.js"><link rel="prefetch" href="/react-docs/assets/js/4.b723420c.js"><link rel="prefetch" href="/react-docs/assets/js/5.742fc857.js"><link rel="prefetch" href="/react-docs/assets/js/6.4931ac58.js"><link rel="prefetch" href="/react-docs/assets/js/7.0f4625aa.js"><link rel="prefetch" href="/react-docs/assets/js/8.991e7e40.js"><link rel="prefetch" href="/react-docs/assets/js/9.5e1cfa3f.js">
+    <link rel="preload" href="/react-docs/assets/css/0.styles.81a1deae.css" as="style"><link rel="preload" href="/react-docs/assets/js/app.77b2a31c.js" as="script"><link rel="preload" href="/react-docs/assets/js/2.e8a0a8e6.js" as="script"><link rel="preload" href="/react-docs/assets/js/10.4043d07c.js" as="script"><link rel="prefetch" href="/react-docs/assets/js/11.0122da87.js"><link rel="prefetch" href="/react-docs/assets/js/3.28923cae.js"><link rel="prefetch" href="/react-docs/assets/js/4.b723420c.js"><link rel="prefetch" href="/react-docs/assets/js/5.742fc857.js"><link rel="prefetch" href="/react-docs/assets/js/6.4931ac58.js"><link rel="prefetch" href="/react-docs/assets/js/7.93e35a00.js"><link rel="prefetch" href="/react-docs/assets/js/8.991e7e40.js"><link rel="prefetch" href="/react-docs/assets/js/9.5e1cfa3f.js">
     <link rel="stylesheet" href="/react-docs/assets/css/0.styles.81a1deae.css">
   </head>
   <body>
@@ -253,7 +253,7 @@ pureComponentPrototype<span class="token punctuation">.</span>isPureReactCompone
   <span class="token comment">// Used to verify that the order of hooks does not change between renders.</span>
   _debugHookTypes<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">Array</span><span class="token operator">&lt;</span>HookType<span class="token operator">&gt;</span> <span class="token operator">|</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
 <span class="token operator">|</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
-</code></pre></div><p>React在mount阶段，会根据JSX对象，计算出Fiber对象，并将JSX对象保存在pendingProps中，在beignWork后JSX对象也会保存在memoizedProps中，输出到子节点中。</p> <p>在update时Reconciler会将JSX和Fiber上的属性惊醒对比，来确定当前节点是否需要更新。并将对比结果的标记打到flag上。</p> <p><strong>现在我们已经知道中的主要数据结构，下一章我们将正式开始render阶段</strong></p> <blockquote><p>本文部分观点参考：https://react.iamkasong.com/</p></blockquote></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">6/23/2021, 2:48:14 AM</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+</code></pre></div><p>React在mount阶段，会根据JSX对象，计算出Fiber对象，并将JSX对象保存在pendingProps中，在beignWork后JSX对象也会保存在memoizedProps中，输出到子节点中。</p> <p>在update时Reconciler会将JSX和Fiber上的属性惊醒对比，来确定当前节点是否需要更新。并将对比结果的标记打到flag上。</p> <p><strong>现在我们已经知道了React中的主要数据结构，下一章我们将正式开始render阶段</strong></p> <blockquote><p>本文部分观点参考：https://react.iamkasong.com/</p></blockquote></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">6/25/2021, 1:55:01 AM</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/react-docs/" class="prev router-link-active">
         首页
@@ -262,6 +262,6 @@ pureComponentPrototype<span class="token punctuation">.</span>isPureReactCompone
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"><!----></div></div>
-    <script src="/react-docs/assets/js/app.723fa765.js" defer></script><script src="/react-docs/assets/js/2.e8a0a8e6.js" defer></script><script src="/react-docs/assets/js/10.979bfed3.js" defer></script>
+    <script src="/react-docs/assets/js/app.77b2a31c.js" defer></script><script src="/react-docs/assets/js/2.e8a0a8e6.js" defer></script><script src="/react-docs/assets/js/10.4043d07c.js" defer></script>
   </body>
 </html>
