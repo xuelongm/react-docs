@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>commit 阶段 | React Docs</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    
+    <meta name="description" content="docs React 17x">
+    
+    <link rel="preload" href="/react-docs/assets/css/0.styles.81a1deae.css" as="style"><link rel="preload" href="/react-docs/assets/js/app.8ce19476.js" as="script"><link rel="preload" href="/react-docs/assets/js/2.e8a0a8e6.js" as="script"><link rel="preload" href="/react-docs/assets/js/10.18945526.js" as="script"><link rel="prefetch" href="/react-docs/assets/js/11.e31c1489.js"><link rel="prefetch" href="/react-docs/assets/js/12.26e151f8.js"><link rel="prefetch" href="/react-docs/assets/js/3.8454ca46.js"><link rel="prefetch" href="/react-docs/assets/js/4.37b04ccd.js"><link rel="prefetch" href="/react-docs/assets/js/5.742fc857.js"><link rel="prefetch" href="/react-docs/assets/js/6.4931ac58.js"><link rel="prefetch" href="/react-docs/assets/js/7.f4004c7c.js"><link rel="prefetch" href="/react-docs/assets/js/8.47df6222.js"><link rel="prefetch" href="/react-docs/assets/js/9.5e1cfa3f.js">
+    <link rel="stylesheet" href="/react-docs/assets/css/0.styles.81a1deae.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/react-docs/" class="home-link router-link-active"><!----> <span class="site-name">React Docs</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/react-docs/" class="nav-link">
+  Home
+</a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/react-docs/" class="nav-link">
+  Home
+</a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/react-docs/" aria-current="page" class="sidebar-link">首页</a></li><li><a href="/react-docs/concept.html" class="sidebar-link">概念篇</a></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>render</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="commit-阶段"><a href="#commit-阶段" class="header-anchor">#</a> commit 阶段</h1> <p>上一节我们讲完了render阶段，本章节我们将要进入commit阶段的学习。</p> <p>commit阶段的入口函数是<code>commitRoot()</code>，此函数在<code>performSyncWorkOnRoot()</code>和<code>finishConcurrentRender()</code>函数中调用。在commit阶段是同步执行的，不可以被打断，也就是说所有的更新需要一次性完成。</p> <p>我们以<code>performSyncWorkOnRoot()</code>为例，看看<code>commitRoot()</code>的调用：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">performSyncWorkOnRoot</span><span class="token punctuation">(</span><span class="token parameter">root</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token comment">// ...省略大部分代码</span>
+  	<span class="token comment">// render阶段的入口函数</span>
+    exitStatus <span class="token operator">=</span> <span class="token function">renderRootSync</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lanes<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token comment">// ...省略代码</span>
+  	<span class="token comment">// commitRoot函数调用</span>
+    <span class="token keyword">const</span> finishedWork<span class="token operator">:</span> Fiber <span class="token operator">=</span> <span class="token punctuation">(</span>root<span class="token punctuation">.</span>current<span class="token punctuation">.</span>alternate<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    root<span class="token punctuation">.</span>finishedWork <span class="token operator">=</span> finishedWork<span class="token punctuation">;</span>
+    root<span class="token punctuation">.</span>finishedLanes <span class="token operator">=</span> lanes<span class="token punctuation">;</span>
+    <span class="token function">commitRoot</span><span class="token punctuation">(</span>root<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  	<span class="token comment">// ...省略代码</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>有上述代码可知，在调用render阶段完成后，获取<code>workInProgress</code>的<code>rootFiber</code>节点，在</p></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">6/25/2021, 2:11:09 PM</span></div></footer> <!----> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/react-docs/assets/js/app.8ce19476.js" defer></script><script src="/react-docs/assets/js/2.e8a0a8e6.js" defer></script><script src="/react-docs/assets/js/10.18945526.js" defer></script>
+  </body>
+</html>
