@@ -1,6 +1,6 @@
 # 概览
 
-本章我们将要揭开render的神秘面纱，揭示React render阶段是怎么构建Fiber树。
+本章我们将要揭开render的神秘面纱，揭示React render阶段是怎样构建Fiber树。
 
 首先，我们来看下render的调用栈：
 
@@ -12,7 +12,7 @@
 
 render阶段始于performSyncWorkOnRoot（同步更新）或performConcurrentWorkOnRoot（异步更新）方法。
 
-两个方法最终都会调用到workLoopSync或workLoopConcurrent两个函数，如下：
+两个方法最终调用到workLoopSync或workLoopConcurrent两个函数，如下：
 
 ```javascript
 // 同步更新
@@ -29,10 +29,10 @@ function workLoopConcurrent() {
 }
 ```
 
-从代码中我们可以看出，更新过程中会判断workInProgress，而异步更新多了个对shouldYield()的判断。
+从代码中我们可以看出，更新过程中都会判断`workInProgress`，而异步更新会调用`shouldYield()`函数的判断（Concurrent模式主要逻辑代码）。
 
-- workInProgress：表示在内存中构建的fiber，在performUnitOfWork中会创建child的fiber，并将child fiber赋值给workInProgress。
-- shouldYield：
+- `workInProgress`：表示在内存中正在构建的fiber树，在`performUnitOfWork`中会创建子节点fiber，并将子节点fiber赋值给`workInProgress`（深度优先的遍历）
+- shouldYield：表示的函数为`shouldYieldToHost`
 
 ```javascript
 shouldYieldToHost = function() {
@@ -48,10 +48,11 @@ shouldYieldToHost = function() {
     };
 ```
 
-在shouldYield()函数，中会判断curentTime>=deadline，如果成立则终止当前更新，将控制权交换给浏览器。
+在shouldYield()函数中会判断curentTime>=deadline，如果成立则终止当前更新，将控制权交换给浏览器。
 
 > 本章以同步流程来讲解的，后期在讲解Concurrent时再引入异步
 
+下面我们来粗略的了解下`performUnitOfWork`函数：
 ```javascript
 function performUnitOfWork(unitOfWork: Fiber): void {
   const current = unitOfWork.alternate;
@@ -85,20 +86,20 @@ function performUnitOfWork(unitOfWork: Fiber): void {
 }
 ```
 
-在performUnitOfWork函数好中主要调用了两个函数beginWork()，completeUnitOfWork()。beginWork为捕获阶段，此阶段会深度遍历节点，并完成Fiber创建以及diff算法。completeUnitOfWork()，为冒泡阶段，此阶段要完成生命周期（部分）的调用，形成effectlist等。
+performUnitOfWork函数最主要的功能就是调用`beginWork()`和  `completeUnitOfWork()`两个函数。`beginWork()`为捕获阶段，此阶段会采取深度优先的方式遍历节点，并完成Fiber树创建以及diff算法。`completeUnitOfWork()`为冒泡阶段，此阶段要完成生命周期（部分）的调用，形成effectlist等。
 
 ## 捕获阶段
 
-在捕获阶段，会深度优先遍历每个节点，并在遍历过程中调用beginWork方法，在此方法中完成fiber的构建以及diff算法（diff算法会会在后面讲解）。fiber的创建可分为两种情况：
+在捕获阶段，会深度优先遍历每个节点，并在遍历过程中调用`beginWork()`，在此方法中完成fiber树的构建以及diff算法（diff算法会在后面详细讲解）。fiber树的创建可分为两种情况：
 
-- 如果fiber.alternate == null, fiber会根据JSX数据进行创建
-- 如果fiber.alternate != null，fiber会clone fiber.alternate，并根据JSX重新赋值。
+- 如果fiber.alternate == null, fiber会根据JSX数据进行创建，表示当前节点没有已渲染的节点与之相对应。
+- 如果fiber.alternate != null，fiber会复用fiber.alternate，并根据JSX重新赋值，表示当前节点有与之相对应的渲染节点。
 
-当捕获阶段递归到叶节点时，会想上冒泡，那么我们来看看冒泡阶段。
+当捕获阶段递归到叶节点时，会向上冒泡，那么我们来看看冒泡阶段。
 
 ## 冒泡阶段
 
-在冒泡阶段会调用completeUnitOfWork()函数，完成生命周期调用，effectList创建等，会判断当前fiber是否存在兄弟节点，如果存在则兄弟节点进入捕获阶段，如果不存则进入父节点的冒泡阶段。
+在冒泡阶段的入口函数为`completeUnitOfWork()`，在此函数中完成部分生命周期调用，effectList创建等，会判断当前fiber是否存在兄弟节点，如果存在则兄弟节点进入捕获阶段，如果不存则进入父节点的冒泡阶段。
 
 那么捕获和冒泡具体过程是什么样的呢？请看下面的例子：
 
