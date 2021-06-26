@@ -8,7 +8,7 @@
     
     <meta name="description" content="docs React 17x">
     
-    <link rel="preload" href="/react-docs/assets/css/0.styles.81a1deae.css" as="style"><link rel="preload" href="/react-docs/assets/js/app.8ce19476.js" as="script"><link rel="preload" href="/react-docs/assets/js/2.e8a0a8e6.js" as="script"><link rel="preload" href="/react-docs/assets/js/10.18945526.js" as="script"><link rel="prefetch" href="/react-docs/assets/js/11.e31c1489.js"><link rel="prefetch" href="/react-docs/assets/js/12.26e151f8.js"><link rel="prefetch" href="/react-docs/assets/js/3.8454ca46.js"><link rel="prefetch" href="/react-docs/assets/js/4.37b04ccd.js"><link rel="prefetch" href="/react-docs/assets/js/5.742fc857.js"><link rel="prefetch" href="/react-docs/assets/js/6.4931ac58.js"><link rel="prefetch" href="/react-docs/assets/js/7.f4004c7c.js"><link rel="prefetch" href="/react-docs/assets/js/8.47df6222.js"><link rel="prefetch" href="/react-docs/assets/js/9.5e1cfa3f.js">
+    <link rel="preload" href="/react-docs/assets/css/0.styles.81a1deae.css" as="style"><link rel="preload" href="/react-docs/assets/js/app.c8c084ff.js" as="script"><link rel="preload" href="/react-docs/assets/js/2.e8a0a8e6.js" as="script"><link rel="preload" href="/react-docs/assets/js/10.9364b8a2.js" as="script"><link rel="prefetch" href="/react-docs/assets/js/11.e31c1489.js"><link rel="prefetch" href="/react-docs/assets/js/12.26e151f8.js"><link rel="prefetch" href="/react-docs/assets/js/3.8454ca46.js"><link rel="prefetch" href="/react-docs/assets/js/4.37b04ccd.js"><link rel="prefetch" href="/react-docs/assets/js/5.742fc857.js"><link rel="prefetch" href="/react-docs/assets/js/6.4931ac58.js"><link rel="prefetch" href="/react-docs/assets/js/7.f4004c7c.js"><link rel="prefetch" href="/react-docs/assets/js/8.47df6222.js"><link rel="prefetch" href="/react-docs/assets/js/9.5e1cfa3f.js">
     <link rel="stylesheet" href="/react-docs/assets/css/0.styles.81a1deae.css">
   </head>
   <body>
@@ -16,20 +16,116 @@
   Home
 </a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/react-docs/" class="nav-link">
   Home
-</a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/react-docs/" aria-current="page" class="sidebar-link">首页</a></li><li><a href="/react-docs/concept.html" class="sidebar-link">概念篇</a></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>render</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="commit-阶段"><a href="#commit-阶段" class="header-anchor">#</a> commit 阶段</h1> <p>上一节我们讲完了render阶段，本章节我们将要进入commit阶段的学习。</p> <p>commit阶段的入口函数是<code>commitRoot()</code>，此函数在<code>performSyncWorkOnRoot()</code>和<code>finishConcurrentRender()</code>函数中调用。在commit阶段是同步执行的，不可以被打断，也就是说所有的更新需要一次性完成。</p> <p>我们以<code>performSyncWorkOnRoot()</code>为例，看看<code>commitRoot()</code>的调用：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">performSyncWorkOnRoot</span><span class="token punctuation">(</span><span class="token parameter">root</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+</a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/react-docs/" aria-current="page" class="sidebar-link">首页</a></li><li><a href="/react-docs/concept.html" class="sidebar-link">概念篇</a></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>render</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="commit-阶段"><a href="#commit-阶段" class="header-anchor">#</a> commit 阶段</h1> <p>上一节我们讲完了render阶段，本章节我们将要进入commit阶段的学习。</p> <p>在进入章节之前要牢记几件事：</p> <ul><li>用于副作用的effectList单项链表已形成，<code>rootFiber.firstEffect</code>指向当前要更新的第一个节点</li> <li>用于<code>mount</code>的dom创建</li> <li></li></ul> <p>commit阶段的入口函数是<code>commitRoot()</code>，此函数在<code>performSyncWorkOnRoot()</code>和<code>finishConcurrentRender()</code>函数中调用。在commit阶段是同步执行的，不可以被打断，也就是说所有的更新需要一次性完成。</p> <p>我们以<code>performSyncWorkOnRoot()</code>为例，看看<code>commitRoot()</code>的调用：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">performSyncWorkOnRoot</span><span class="token punctuation">(</span><span class="token parameter">root</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
 
     <span class="token comment">// ...省略大部分代码</span>
-  	<span class="token comment">// render阶段的入口函数</span>
+    <span class="token comment">// render阶段的入口函数</span>
     exitStatus <span class="token operator">=</span> <span class="token function">renderRootSync</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lanes<span class="token punctuation">)</span><span class="token punctuation">;</span>
-		<span class="token comment">// ...省略代码</span>
-  	<span class="token comment">// commitRoot函数调用</span>
+    <span class="token comment">// ...省略代码</span>
+    <span class="token comment">// commitRoot函数调用</span>
     <span class="token keyword">const</span> finishedWork<span class="token operator">:</span> Fiber <span class="token operator">=</span> <span class="token punctuation">(</span>root<span class="token punctuation">.</span>current<span class="token punctuation">.</span>alternate<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     root<span class="token punctuation">.</span>finishedWork <span class="token operator">=</span> finishedWork<span class="token punctuation">;</span>
     root<span class="token punctuation">.</span>finishedLanes <span class="token operator">=</span> lanes<span class="token punctuation">;</span>
     <span class="token function">commitRoot</span><span class="token punctuation">(</span>root<span class="token punctuation">)</span><span class="token punctuation">;</span>
-  	<span class="token comment">// ...省略代码</span>
+    <span class="token comment">// ...省略代码</span>
 <span class="token punctuation">}</span>
-</code></pre></div><p>有上述代码可知，在调用render阶段完成后，获取<code>workInProgress</code>的<code>rootFiber</code>节点，在</p></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">6/25/2021, 2:11:09 PM</span></div></footer> <!----> </main></div><div class="global-ui"><!----></div></div>
-    <script src="/react-docs/assets/js/app.8ce19476.js" defer></script><script src="/react-docs/assets/js/2.e8a0a8e6.js" defer></script><script src="/react-docs/assets/js/10.18945526.js" defer></script>
+</code></pre></div><p>有上述代码可知，在调用render阶段完成后，获取<code>workInProgress</code>的<code>rootFiber</code>节点，并将<code>rootFiber</code>节点传入<code>commitRoot</code>中。现在就让我们揭开<code>commitRoot</code>的神秘面纱。</p> <p>😭，commitRoot代码就5行，只是用<code>runWithPriority</code>调起一个任务，也就是说所有的逻辑都是在<code>commitRootImpl</code>函数中</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitRoot</span><span class="token punctuation">(</span><span class="token parameter">root</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> renderPriorityLevel <span class="token operator">=</span> <span class="token function">getCurrentPriorityLevel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">runWithPriority</span><span class="token punctuation">(</span>
+      ImmediateSchedulerPriority<span class="token punctuation">,</span>
+      <span class="token function">commitRootImpl</span><span class="token punctuation">.</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> root<span class="token punctuation">,</span> renderPriorityLevel<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p><code>commitRootImpl</code>函数全部代码有371行，看这么长的代码就是一种折磨，不过我们可以只关注代码中最主要的功能就好，主要有以下几个功能：</p> <ul><li>处理rootFiber节点，将rootFiber节点加入到effectList中</li> <li>调用<code>commitBeforeMutationEffects</code>函数（before mutation）</li> <li>调用<code>commitMutationEffects</code>函数（mutation）</li> <li>调用<code>commitLayoutEffects</code>函数（layout）</li></ul> <p>那么这个三个函数有做了写什么呢？下面我们一一分析</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitRootImpl</span><span class="token punctuation">(</span><span class="token parameter">root<span class="token punctuation">,</span> renderPriorityLevel</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...省略代码</span>
+
+    <span class="token comment">// 获取effectList</span>
+    <span class="token keyword">let</span> firstEffect<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span>flags <span class="token operator">&gt;</span> PerformedWork<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 因为rootFiber在render阶段不会加入到链表，此时我们要把rootFiber节点加入到链表中</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span>lastEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        finishedWork<span class="token punctuation">.</span>lastEffect<span class="token punctuation">.</span>nextEffect <span class="token operator">=</span> finishedWork<span class="token punctuation">;</span>
+        firstEffect <span class="token operator">=</span> finishedWork<span class="token punctuation">.</span>firstEffect<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        firstEffect <span class="token operator">=</span> finishedWork<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token comment">// There is no effect on the root.</span>
+      firstEffect <span class="token operator">=</span> finishedWork<span class="token punctuation">.</span>firstEffect<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// ...省略代码</span>
+    <span class="token comment">// 操作DOM之前的操作</span>
+    nextEffect <span class="token operator">=</span> firstEffect<span class="token punctuation">;</span>
+    <span class="token keyword">do</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 会调用getSnxapshotBeforeUpdate函数</span>
+      <span class="token function">commitBeforeMutationEffects</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>nextEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// We no longer need to track the active instance fiber</span>
+    focusedInstanceHandle <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>enableProfilerTimer<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// Mark the current commit time to be shared by all Profilers in this</span>
+      <span class="token comment">// batch. This enables them to be grouped later.</span>
+      <span class="token function">recordCommitTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// The next phase is the mutation phase, where we mutate the host tree.</span>
+    <span class="token comment">// 此阶段会修改DOM</span>
+    nextEffect <span class="token operator">=</span> firstEffect<span class="token punctuation">;</span>
+    <span class="token keyword">do</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 解绑ref，调用useLayoutEffect销毁函数, 调用DOM操作</span>
+      <span class="token function">commitMutationEffects</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> renderPriorityLevel<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>nextEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// ...省略代码</span>
+    <span class="token comment">// 将workProgress 赋值到当前的current</span>
+    <span class="token comment">// 此处很重要</span>
+    root<span class="token punctuation">.</span>current <span class="token operator">=</span> finishedWork<span class="token punctuation">;</span>
+
+    <span class="token comment">// 操作DOM树</span>
+    nextEffect <span class="token operator">=</span> firstEffect<span class="token punctuation">;</span>
+    <span class="token keyword">do</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 调用生命周期，调用useLayoutEffect，讲useEffect放入到数组中，绑定ref</span>
+      <span class="token function">commitLayoutEffects</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lanes<span class="token punctuation">)</span><span class="token punctuation">;</span>å
+    <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>nextEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  
+    <span class="token comment">//...省略代码</span>
+  
+    <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="beforemutation"><a href="#beforemutation" class="header-anchor">#</a> beforeMutation</h2> <ul><li>处理blur和focus相关逻辑</li> <li>对于class component类型，如果有<code>Snapshot</code>，会在<code>commitBeforeMutationEffectOnFiber</code>中调用<code>getSnapshotBeforeUpdate</code></li></ul> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitBeforeMutationEffects</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span>nextEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> current <span class="token operator">=</span> nextEffect<span class="token punctuation">.</span>alternate<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>shouldFireAfterActiveInstanceBlur <span class="token operator">&amp;&amp;</span> focusedInstanceHandle <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+     <span class="token punctuation">]</span><span class="token comment">// 处理blur和focus相关逻辑</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">const</span> flags <span class="token operator">=</span> nextEffect<span class="token punctuation">.</span>flags<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>flags <span class="token operator">&amp;</span> Snapshot<span class="token punctuation">)</span> <span class="token operator">!==</span> NoFlags<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">setCurrentDebugFiberInDEV</span><span class="token punctuation">(</span>nextEffect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token comment">// 如果current 为ClassComponent 则会调用getSnapshotBeforeUpdate</span>
+      <span class="token function">commitBeforeMutationEffectOnFiber</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> nextEffect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token function">resetCurrentDebugFiberInDEV</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>flags <span class="token operator">&amp;</span> Passive<span class="token punctuation">)</span> <span class="token operator">!==</span> NoFlags<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 调度effect</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>rootDoesHavePassiveEffects<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        rootDoesHavePassiveEffects <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        <span class="token function">scheduleCallback</span><span class="token punctuation">(</span>NormalSchedulerPriority<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+          <span class="token function">flushPassiveEffects</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    nextEffect <span class="token operator">=</span> nextEffect<span class="token punctuation">.</span>nextEffect<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">6/26/2021, 1:19:52 AM</span></div></footer> <!----> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/react-docs/assets/js/app.c8c084ff.js" defer></script><script src="/react-docs/assets/js/2.e8a0a8e6.js" defer></script><script src="/react-docs/assets/js/10.9364b8a2.js" defer></script>
   </body>
 </html>
