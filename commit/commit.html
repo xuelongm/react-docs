@@ -8,7 +8,7 @@
     
     <meta name="description" content="docs React 17x">
     
-    <link rel="preload" href="/react-docs/assets/css/0.styles.81a1deae.css" as="style"><link rel="preload" href="/react-docs/assets/js/app.ca115495.js" as="script"><link rel="preload" href="/react-docs/assets/js/2.e8a0a8e6.js" as="script"><link rel="preload" href="/react-docs/assets/js/10.3dc71f05.js" as="script"><link rel="prefetch" href="/react-docs/assets/js/11.e31c1489.js"><link rel="prefetch" href="/react-docs/assets/js/12.26e151f8.js"><link rel="prefetch" href="/react-docs/assets/js/3.8454ca46.js"><link rel="prefetch" href="/react-docs/assets/js/4.37b04ccd.js"><link rel="prefetch" href="/react-docs/assets/js/5.742fc857.js"><link rel="prefetch" href="/react-docs/assets/js/6.4931ac58.js"><link rel="prefetch" href="/react-docs/assets/js/7.f4004c7c.js"><link rel="prefetch" href="/react-docs/assets/js/8.47df6222.js"><link rel="prefetch" href="/react-docs/assets/js/9.5e1cfa3f.js">
+    <link rel="preload" href="/react-docs/assets/css/0.styles.81a1deae.css" as="style"><link rel="preload" href="/react-docs/assets/js/app.fb081603.js" as="script"><link rel="preload" href="/react-docs/assets/js/2.30c32e43.js" as="script"><link rel="preload" href="/react-docs/assets/js/4.55a0d30d.js" as="script"><link rel="prefetch" href="/react-docs/assets/js/10.71472788.js"><link rel="prefetch" href="/react-docs/assets/js/11.1fd691b3.js"><link rel="prefetch" href="/react-docs/assets/js/12.cc988eec.js"><link rel="prefetch" href="/react-docs/assets/js/13.247ed072.js"><link rel="prefetch" href="/react-docs/assets/js/3.8cfe27ab.js"><link rel="prefetch" href="/react-docs/assets/js/5.49a399ea.js"><link rel="prefetch" href="/react-docs/assets/js/6.226417ae.js"><link rel="prefetch" href="/react-docs/assets/js/7.72019bb0.js"><link rel="prefetch" href="/react-docs/assets/js/8.46a0b441.js"><link rel="prefetch" href="/react-docs/assets/js/9.3dbf244b.js">
     <link rel="stylesheet" href="/react-docs/assets/css/0.styles.81a1deae.css">
   </head>
   <body>
@@ -16,7 +16,7 @@
   Home
 </a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/react-docs/" class="nav-link">
   Home
-</a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/react-docs/" aria-current="page" class="sidebar-link">首页</a></li><li><a href="/react-docs/concept.html" class="sidebar-link">概念篇</a></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>render</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="commit-阶段"><a href="#commit-阶段" class="header-anchor">#</a> commit 阶段</h1> <p>上一节我们讲完了render阶段，本章节我们将要进入commit阶段的学习。</p> <p>在进入章节之前要牢记几件事：</p> <ul><li>用于副作用的effectList单项链表已形成，<code>rootFiber.firstEffect</code>指向当前要更新的第一个节点</li> <li>用于<code>mount</code>的dom创建</li> <li></li></ul> <p>commit阶段的入口函数是<code>commitRoot()</code>，此函数在<code>performSyncWorkOnRoot()</code>和<code>finishConcurrentRender()</code>函数中调用。在commit阶段是同步执行的，不可以被打断，也就是说所有的更新需要一次性完成。</p> <p>我们以<code>performSyncWorkOnRoot()</code>为例，看看<code>commitRoot()</code>的调用：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">performSyncWorkOnRoot</span><span class="token punctuation">(</span><span class="token parameter">root</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+</a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/react-docs/" aria-current="page" class="sidebar-link">首页</a></li><li><a href="/react-docs/concept.html" class="sidebar-link">概念篇</a></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>render</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>commit</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/react-docs/commit/commit.html" aria-current="page" class="active sidebar-link">commit 阶段</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/react-docs/commit/commit.html#beforemutation" class="sidebar-link">beforeMutation</a></li><li class="sidebar-sub-header"><a href="/react-docs/commit/commit.html#mutation阶段" class="sidebar-link">Mutation阶段</a></li><li class="sidebar-sub-header"><a href="/react-docs/commit/commit.html#current-切换" class="sidebar-link">current 切换</a></li><li class="sidebar-sub-header"><a href="/react-docs/commit/commit.html#layout阶段" class="sidebar-link">Layout阶段</a></li><li class="sidebar-sub-header"><a href="/react-docs/commit/commit.html#总结-3" class="sidebar-link">总结</a></li></ul></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>diff</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="commit-阶段"><a href="#commit-阶段" class="header-anchor">#</a> commit 阶段</h1> <p>上一节我们讲完了render阶段，本章节我们将要进入commit阶段的学习。</p> <blockquote><p>本系列文章的使用react版本为17.0.2，后期版本这块的代码可能变化比较大</p></blockquote> <p>在进入章节之前要牢记几件事：</p> <ul><li>用于副作用的effectList单项链表已形成，<code>rootFiber.firstEffect</code>指向当前要更新的第一个节点</li> <li>此阶段为同步更新，不可被打断</li> <li>commit也是通过runWithPriority调度起来的，只是调度的同步任务而已</li></ul> <p>commit阶段的入口函数是<code>commitRoot()</code>，此函数在<code>performSyncWorkOnRoot()</code>和<code>finishConcurrentRender()</code>函数中调用。在commit阶段是同步执行的，不可以被打断，也就是说所有的更新需要一次性完成。</p> <p>我们以<code>performSyncWorkOnRoot()</code>为例，看看<code>commitRoot()</code>的调用：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">performSyncWorkOnRoot</span><span class="token punctuation">(</span><span class="token parameter">root</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
 
     <span class="token comment">// ...省略大部分代码</span>
     <span class="token comment">// render阶段的入口函数</span>
@@ -88,7 +88,7 @@
     <span class="token comment">// 操作DOM树</span>
     nextEffect <span class="token operator">=</span> firstEffect<span class="token punctuation">;</span>
     <span class="token keyword">do</span> <span class="token punctuation">{</span>
-      <span class="token comment">// 调用生命周期，调用useLayoutEffect，讲useEffect放入到数组中，绑定ref</span>
+      <span class="token comment">// 调用生命周期，调用useLayoutEffect，将useEffect放入到数组中，绑定ref</span>
       <span class="token function">commitLayoutEffects</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lanes<span class="token punctuation">)</span><span class="token punctuation">;</span>å
     <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>nextEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
   
@@ -96,7 +96,7 @@
   
     <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</code></pre></div><h2 id="beforemutation"><a href="#beforemutation" class="header-anchor">#</a> beforeMutation</h2> <ul><li>处理blur和focus相关逻辑</li> <li>对于class component类型，如果有<code>Snapshot</code>，会在<code>commitBeforeMutationEffectOnFiber</code>中调用<code>getSnapshotBeforeUpdate</code></li> <li>调用useEffect</li></ul> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitBeforeMutationEffects</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+</code></pre></div><h2 id="beforemutation"><a href="#beforemutation" class="header-anchor">#</a> beforeMutation</h2> <ul><li>处理blur和focus相关逻辑</li> <li>对于class component类型，如果有<code>Snapshot</code>，会在<code>commitBeforeMutationEffectOnFiber</code>中调用<code>getSnapshotBeforeUpdate</code></li> <li>调度useEffect（在此处只是将useEffect调度起来，并不会真正的执行）</li></ul> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitBeforeMutationEffects</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token keyword">while</span> <span class="token punctuation">(</span>nextEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">const</span> current <span class="token operator">=</span> nextEffect<span class="token punctuation">.</span>alternate<span class="token punctuation">;</span>
 
@@ -141,7 +141,7 @@
         instance<span class="token punctuation">.</span><span class="token function">UNSAFE_componentWillUpdate</span><span class="token punctuation">(</span>newProps<span class="token punctuation">,</span> newState<span class="token punctuation">,</span> nextContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
-</code></pre></div><p>总而言之，<code>getSnapshotBeforeUpdate</code>是为了解决异步调用过程中的多次调用问题，我们在代码中应该尽量使用<code>getSnapshotBeforeUpdate</code>来代替原来的生命周期。</p> <h3 id="调用useeffect"><a href="#调用useeffect" class="header-anchor">#</a> 调用useEffect</h3> <p>在beforeMutitation阶段，会将useEffect加入到调度任务中，详细解析会在后面讲解useEffect时详细讲解。</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code> <span class="token comment">// 调度effect</span>
+</code></pre></div><p>总而言之，<code>getSnapshotBeforeUpdate</code>是为了解决异步调用过程中的多次调用问题，我们在代码中应该尽量使用<code>getSnapshotBeforeUpdate</code>来代替原来的生命周期。</p> <h3 id="调度useeffect"><a href="#调度useeffect" class="header-anchor">#</a> 调度useEffect</h3> <p>在beforeMutitation阶段，会将useEffect加入到调度任务中，详细解析会在后面讲解useEffect时详细讲解。</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code> <span class="token comment">// 调度effect</span>
 <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>rootDoesHavePassiveEffects<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   rootDoesHavePassiveEffects <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
   <span class="token comment">// 异步调度useEffect</span>
@@ -184,21 +184,15 @@
 
     <span class="token keyword">const</span> primaryFlags <span class="token operator">=</span> flags <span class="token operator">&amp;</span> <span class="token punctuation">(</span>Placement <span class="token operator">|</span> Update <span class="token operator">|</span> Deletion <span class="token operator">|</span> Hydrating<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">switch</span> <span class="token punctuation">(</span>primaryFlags<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment">// 插入节点</span>
+      <span class="token comment">// 插入节点</span>
       <span class="token keyword">case</span> Placement<span class="token operator">:</span> <span class="token punctuation">{</span>
         <span class="token function">commitPlacement</span><span class="token punctuation">(</span>nextEffect<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment">// Clear the &quot;placement&quot; from effect tag so that we know that this is</span>
-        <span class="token comment">// inserted, before any life-cycles like componentDidMount gets called.</span>
-        <span class="token comment">// TODO: findDOMNode doesn't rely on this any more but isMounted does</span>
-        <span class="token comment">// and isMounted is deprecated anyway so we should be able to kill this.</span>
         nextEffect<span class="token punctuation">.</span>flags <span class="token operator">&amp;=</span> <span class="token operator">~</span>Placement<span class="token punctuation">;</span>
         <span class="token keyword">break</span><span class="token punctuation">;</span>
       <span class="token punctuation">}</span>
 			<span class="token comment">// 插入并更新节点</span>
       <span class="token keyword">case</span> PlacementAndUpdate<span class="token operator">:</span> <span class="token punctuation">{</span>
         <span class="token function">commitPlacement</span><span class="token punctuation">(</span>nextEffect<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment">// Clear the &quot;placement&quot; from effect tag so that we know that this is</span>
-        <span class="token comment">// inserted, before any life-cycles like componentDidMount gets called.</span>
         nextEffect<span class="token punctuation">.</span>flags <span class="token operator">&amp;=</span> <span class="token operator">~</span>Placement<span class="token punctuation">;</span>
 
         <span class="token comment">// Update</span>
@@ -237,7 +231,7 @@
     nextEffect <span class="token operator">=</span> nextEffect<span class="token punctuation">.</span>nextEffect<span class="token punctuation">;</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre></div><p><code>commitMutationEffects</code>遍历全部的effectList，对每个节点做如下处理（忽略SSR相关）</p> <ul><li>重置text</li> <li>解绑ref</li> <li>根据Fiber节点的<code>flag</code>类型，决定对DOM节点要做的操作，包括增删改</li></ul> <h3 id="增-placement"><a href="#增-placement" class="header-anchor">#</a> 增（Placement）</h3> <p>增加功能的入口为<code>commitPlacement</code>，<code>commitPlacement</code>代码大致如下：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitPlacement</span><span class="token punctuation">(</span><span class="token parameter">finishedWork<span class="token operator">:</span> Fiber</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
+</code></pre></div><p><code>commitMutationEffects</code>遍历全部的effectList，对每个节点做如下处理（忽略SSR相关）</p> <ul><li>重置text</li> <li>解绑ref</li> <li>根据Fiber节点的<code>flag</code>类型，决定对DOM节点要做的操作，包括增删改</li></ul> <h3 id="增-placement"><a href="#增-placement" class="header-anchor">#</a> 增（Placement）</h3> <p><strong>增</strong>的入口为<code>commitPlacement</code>，<code>commitPlacement</code>代码大致如下：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitPlacement</span><span class="token punctuation">(</span><span class="token parameter">finishedWork<span class="token operator">:</span> Fiber</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
   	<span class="token comment">// 当前环境支持Mutation</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>supportsMutation<span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">return</span><span class="token punctuation">;</span>
@@ -293,56 +287,39 @@
       <span class="token function">insertOrAppendPlacementNode</span><span class="token punctuation">(</span>finishedWork<span class="token punctuation">,</span> before<span class="token punctuation">,</span> parent<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre></div><p><code>commitPlacement</code>主要完成一下几件事：</p> <ul><li>获取有DOM节点的Fiber节点，入口函数为<code>getHostParentFiber</code></li> <li>获取Parent DOM节点</li> <li>获取当前节点的DOM节点的兄弟DOM节点，入口函数为<code>getHostSibling</code></li> <li>插入节点，入口函数为<code>insertOrAppendPlacementNodeIntoContainer</code>和<code>insertOrAppendPlacementNode</code></li></ul> <p>以上几件事最主要的是获取兄弟节点和插入节点。</p> <h4 id="gethostsibling"><a href="#gethostsibling" class="header-anchor">#</a> getHostSibling</h4> <p><code>getHostSibling</code>获取兄弟DOM节点是很有意思的算法，因为Fiber节点不止包括<code>HostComponent</code>节点，还包括<code>ClassComponent</code>等节点，也就是DOM节点和Fiber节点不是同级的。如下面的例子：</p> <div class="language-react extra-class"><pre class="language-text"><code>function Test() {
-  return (
-    &lt;div&gt;1212&lt;/div&gt;
-  )
-}
+</code></pre></div><p><code>commitPlacement</code>主要完成一下几件事：</p> <ul><li>获取有DOM节点的Fiber节点，入口函数为<code>getHostParentFiber</code></li> <li>获取Parent DOM节点</li> <li>获取当前节点的DOM节点的兄弟DOM节点，入口函数为<code>getHostSibling</code></li> <li>插入节点，入口函数为<code>insertOrAppendPlacementNodeIntoContainer</code>和<code>insertOrAppendPlacementNode</code></li></ul> <p>以上几件事最主要的是获取兄弟节点和插入节点。</p> <h4 id="gethostsibling"><a href="#gethostsibling" class="header-anchor">#</a> getHostSibling</h4> <p><code>getHostSibling</code>获取兄弟DOM节点是很有意思的算法，因为Fiber节点不止包括<code>HostComponent</code>节点，还包括<code>ClassComponent</code>等节点，也就是DOM节点和Fiber节点不是同级的。如下面的例子：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">Test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">&gt;</span></span><span class="token plain-text">1212</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isShow: false,
-    }
-  }
+<span class="token keyword">class</span> <span class="token class-name">App</span> <span class="token keyword">extends</span> <span class="token class-name">React</span><span class="token punctuation">.</span>Component <span class="token punctuation">{</span>
+  <span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token parameter">props</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>props<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>state <span class="token operator">=</span> <span class="token punctuation">{</span>
+      isShow<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
 
-  updateCount() {
-    this.setState({isShow: !this.state.isShow});
-  }
+  <span class="token function">updateCount</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">setState</span><span class="token punctuation">(</span><span class="token punctuation">{</span>isShow<span class="token operator">:</span> <span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span>isShow<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
 
-  render() {
-    const pNode = this.state.isShow ? &lt;p&gt;test&lt;/p&gt; : null;
-    return (
-      &lt;div&gt;
-        {pNode}
-        &lt;Test&gt;&lt;/Test&gt;
-        &lt;button onClick={() =&gt; this.updateCount()}&gt;click me&lt;/button&gt;
-      &lt;/div&gt;
-    )
-  }
-}
-</code></pre></div><p>Fiber节点如下：</p> <ul><li>this.state.isShow === false</li></ul> <p>Fiber 树</p> <div class="language-mermaid extra-class"><pre class="language-text"><code>graph LR
-	APP --&gt; DIV
-	DIV --&gt; TEST
-	DIV --&gt; BUTTON
-	TEST --&gt; TESTDIV
-</code></pre></div><p>DOM树</p> <div class="language-mermaid extra-class"><pre class="language-text"><code>graph LR
-	DIV --&gt; TESTDIV
-	DIV --&gt; BUTTON
-  
-</code></pre></div><ul><li>this.state.isShow === ture</li></ul> <p>Fiber 树</p> <div class="language-mermaid extra-class"><pre class="language-text"><code>graph LR
-	APP --&gt; DIV
-	DIV --&gt; P
-	DIV --&gt; TEST
-	DIV --&gt; BUTTON
-	TEST --&gt; TESTDIV
-</code></pre></div><p>DOM树</p> <div class="language-mermaid extra-class"><pre class="language-text"><code>graph LR
-	DIV --&gt; P
-	DIV --&gt; TESTDIV
-	DIV --&gt; BUTTON
- 
-</code></pre></div><p>如上，P的兄弟节点，在DOM树上和Fiber树上是 不同级，在DOM书上，P的兄弟节点是TESTDIV，在Fiber树上P的兄弟节点是TEST。如果我们想找到P的兄弟DOM节点需要跨级寻找，树的跨级寻找的复杂度都是很高的。所以循环插入DOM可能会有性能问题。</p> <p>下面让我们来看看<code>getHostSibling</code>算法的实现：</p> <div class="language-ts extra-class"><pre class="language-ts"><code><span class="token keyword">function</span> <span class="token function">getHostSibling</span><span class="token punctuation">(</span>fiber<span class="token operator">:</span> Fiber<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token operator">?</span>Instance <span class="token punctuation">{</span>
+  <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> pNode <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span>isShow <span class="token operator">?</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">&gt;</span></span><span class="token plain-text">test</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span> <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">&gt;</span></span><span class="token plain-text">
+        </span><span class="token punctuation">{</span>pNode<span class="token punctuation">}</span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Test</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">Test</span></span><span class="token punctuation">&gt;</span></span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">updateCount</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span><span class="token plain-text">click me</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+    <span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>Fiber节点如下：</p> <ul><li>this.state.isShow === false</li></ul> <p>Fiber 树</p> <br> <img src="/react-docs/assets/img/graph1.74691ab7.jpg"> <br> <p>DOM树</p> <br> <img src="/react-docs/assets/img/graph2.37abd005.jpg"> <br> <ul><li>this.state.isShow === ture</li></ul> <p>Fiber 树
+<br></p> <img src="/react-docs/assets/img/graph3.e02bbb18.jpg"> <br>
+DOM树
+<br> <img src="/react-docs/assets/img/graph4.2c369c5e.jpg"> <br> <p>如上，P的兄弟节点，在DOM树上和Fiber树上是 不同级，在DOM书上，P的兄弟节点是TESTDIV，在Fiber树上P的兄弟节点是TEST。如果我们想找到P的兄弟DOM节点需要跨级寻找，树的跨级寻找的复杂度都是很高的。所以循环插入DOM可能会有性能问题。</p> <p>下面让我们来看看<code>getHostSibling</code>算法的实现：</p> <div class="language-ts extra-class"><pre class="language-ts"><code><span class="token keyword">function</span> <span class="token function">getHostSibling</span><span class="token punctuation">(</span>fiber<span class="token operator">:</span> Fiber<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token operator">?</span>Instance <span class="token punctuation">{</span>
   <span class="token keyword">let</span> node<span class="token operator">:</span> Fiber <span class="token operator">=</span> fiber<span class="token punctuation">;</span>
   siblings<span class="token operator">:</span> <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token comment">// 如果当前节点没有兄弟节点，则去查询父节点</span>
@@ -405,24 +382,24 @@ class App extends React.Component {
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre></div><p>我们来分析下<code>else</code>的情况：</p> <div class="language-react extra-class"><pre class="language-text"><code>function Test() {
-  return (
-    &lt;p&gt;test&lt;/p&gt;
-    &lt;div&gt;1212&lt;/div&gt;
-  )
-}
+</code></pre></div><p>我们来分析下<code>else</code>的情况：</p> <div class="language-jsx extra-class"><pre class="language-jsx"><code><span class="token keyword">function</span> <span class="token function">Test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>p</span><span class="token punctuation">&gt;</span></span><span class="token plain-text">test</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>p</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">&gt;</span></span><span class="token plain-text">1212</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 
-function App() {
-	const [isShow, setIsShow] = useState(false);
-  const setIsShowHandler = useCallback(() =&gt; setIsShow(true), []);
-  const testNode = isShow ? &lt;Test&gt;&lt;/Test&gt; : null
-  return (
-    &lt;div&gt;
-      {testNode}
-      &lt;button onClick={setIsShowHandler}&gt;click me&lt;/button&gt;
-    &lt;/div&gt;
-  )
-}
+<span class="token keyword">function</span> <span class="token function">App</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">const</span> <span class="token punctuation">[</span>isShow<span class="token punctuation">,</span> setIsShow<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">useState</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> setIsShowHandler <span class="token operator">=</span> <span class="token function">useCallback</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">setIsShow</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> testNode <span class="token operator">=</span> isShow <span class="token operator">?</span> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">Test</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token class-name">Test</span></span><span class="token punctuation">&gt;</span></span> <span class="token operator">:</span> <span class="token keyword">null</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">&gt;</span></span><span class="token plain-text">
+      </span><span class="token punctuation">{</span>testNode<span class="token punctuation">}</span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>setIsShowHandler<span class="token punctuation">}</span></span><span class="token punctuation">&gt;</span></span><span class="token plain-text">click me</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
 </code></pre></div><p>当我们点击按钮时，会形成这样的EffectList，App.firstEffect --&gt; Test   Test.nextEffect === null，也就是说在EffectList中只有Test Fiber加入到了EffectList中，同时Test Fiber的<code>flags</code>含有<code>Placement</code>标记，此时要循环将<code>p</code>节点和<code>div</code>节点插入到DOM中。</p> <h3 id="删除-deletion"><a href="#删除-deletion" class="header-anchor">#</a> 删除（Deletion）</h3> <p>删除逻辑的入口为<code>commitDeletion</code>，<code>commitDeletion</code>函数会调用<code>unmountHostComponents</code>，并最终在<code>unmountHostComponents</code>函数中完成删除逻辑，<code>unmountHostComponents</code>函数代码如下：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">unmountHostComponents</span><span class="token punctuation">(</span>
 <span class="token parameter">finishedRoot<span class="token operator">:</span> FiberRoot<span class="token punctuation">,</span>
  current<span class="token operator">:</span> Fiber<span class="token punctuation">,</span>
@@ -443,12 +420,8 @@ function App() {
   <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>currentParentIsValid<span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token keyword">let</span> parent <span class="token operator">=</span> node<span class="token punctuation">.</span><span class="token keyword">return</span><span class="token punctuation">;</span>
+      <span class="token comment">// 获取真实dom container</span>
       findParent<span class="token operator">:</span> <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token function">invariant</span><span class="token punctuation">(</span>
-          parent <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
-          <span class="token string">'Expected to find a host parent. This error is likely caused by '</span> <span class="token operator">+</span>
-          <span class="token string">'a bug in React. Please file an issue.'</span><span class="token punctuation">,</span>
-        <span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">const</span> parentStateNode <span class="token operator">=</span> parent<span class="token punctuation">.</span>stateNode<span class="token punctuation">;</span>
         <span class="token keyword">switch</span> <span class="token punctuation">(</span>parent<span class="token punctuation">.</span>tag<span class="token punctuation">)</span> <span class="token punctuation">{</span>
           <span class="token keyword">case</span> HostComponent<span class="token operator">:</span>
@@ -473,7 +446,7 @@ function App() {
       <span class="token punctuation">}</span>
       currentParentIsValid <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
-
+		<span class="token comment">// HostComponent || HostText</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>node<span class="token punctuation">.</span>tag <span class="token operator">===</span> HostComponent <span class="token operator">||</span> node<span class="token punctuation">.</span>tag <span class="token operator">===</span> HostText<span class="token punctuation">)</span> <span class="token punctuation">{</span>
       <span class="token function">commitNestedUnmounts</span><span class="token punctuation">(</span>finishedRoot<span class="token punctuation">,</span> node<span class="token punctuation">,</span> renderPriorityLevel<span class="token punctuation">)</span><span class="token punctuation">;</span>
       <span class="token comment">// After all the children have unmounted, it is now safe to remove the</span>
@@ -490,61 +463,10 @@ function App() {
         <span class="token punctuation">)</span><span class="token punctuation">;</span>
       <span class="token punctuation">}</span>
       <span class="token comment">// Don't visit children because we already visited them.</span>
-    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>enableFundamentalAPI <span class="token operator">&amp;&amp;</span> node<span class="token punctuation">.</span>tag <span class="token operator">===</span> FundamentalComponent<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token keyword">const</span> fundamentalNode <span class="token operator">=</span> node<span class="token punctuation">.</span>stateNode<span class="token punctuation">.</span>instance<span class="token punctuation">;</span>
-      <span class="token function">commitNestedUnmounts</span><span class="token punctuation">(</span>finishedRoot<span class="token punctuation">,</span> node<span class="token punctuation">,</span> renderPriorityLevel<span class="token punctuation">)</span><span class="token punctuation">;</span>
-      <span class="token comment">// After all the children have unmounted, it is now safe to remove the</span>
-      <span class="token comment">// node from the tree.</span>
-      <span class="token keyword">if</span> <span class="token punctuation">(</span>currentParentIsContainer<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token function">removeChildFromContainer</span><span class="token punctuation">(</span>
-          <span class="token punctuation">(</span><span class="token punctuation">(</span>currentParent<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token operator">:</span> Container<span class="token punctuation">)</span><span class="token punctuation">,</span>
-          <span class="token punctuation">(</span>fundamentalNode<span class="token operator">:</span> Instance<span class="token punctuation">)</span><span class="token punctuation">,</span>
-        <span class="token punctuation">)</span><span class="token punctuation">;</span>
-      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-        <span class="token comment">// 删除真实DOM</span>
-        <span class="token function">removeChild</span><span class="token punctuation">(</span>
-          <span class="token punctuation">(</span><span class="token punctuation">(</span>currentParent<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token operator">:</span> Instance<span class="token punctuation">)</span><span class="token punctuation">,</span>
-          <span class="token punctuation">(</span>fundamentalNode<span class="token operator">:</span> Instance<span class="token punctuation">)</span><span class="token punctuation">,</span>
-        <span class="token punctuation">)</span><span class="token punctuation">;</span>
-      <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>
-      enableSuspenseServerRenderer <span class="token operator">&amp;&amp;</span>
-      node<span class="token punctuation">.</span>tag <span class="token operator">===</span> DehydratedFragment
-    <span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token keyword">if</span> <span class="token punctuation">(</span>enableSuspenseCallback<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">const</span> hydrationCallbacks <span class="token operator">=</span> finishedRoot<span class="token punctuation">.</span>hydrationCallbacks<span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>hydrationCallbacks <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-          <span class="token keyword">const</span> onDeleted <span class="token operator">=</span> hydrationCallbacks<span class="token punctuation">.</span>onDeleted<span class="token punctuation">;</span>
-          <span class="token keyword">if</span> <span class="token punctuation">(</span>onDeleted<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token function">onDeleted</span><span class="token punctuation">(</span><span class="token punctuation">(</span>node<span class="token punctuation">.</span>stateNode<span class="token operator">:</span> SuspenseInstance<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-          <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
-      <span class="token punctuation">}</span>
-
-      <span class="token comment">// Delete the dehydrated suspense boundary and all of its content.</span>
-      <span class="token keyword">if</span> <span class="token punctuation">(</span>currentParentIsContainer<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token function">clearSuspenseBoundaryFromContainer</span><span class="token punctuation">(</span>
-          <span class="token punctuation">(</span><span class="token punctuation">(</span>currentParent<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token operator">:</span> Container<span class="token punctuation">)</span><span class="token punctuation">,</span>
-          <span class="token punctuation">(</span>node<span class="token punctuation">.</span>stateNode<span class="token operator">:</span> SuspenseInstance<span class="token punctuation">)</span><span class="token punctuation">,</span>
-        <span class="token punctuation">)</span><span class="token punctuation">;</span>
-      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-        <span class="token function">clearSuspenseBoundary</span><span class="token punctuation">(</span>
-          <span class="token punctuation">(</span><span class="token punctuation">(</span>currentParent<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token operator">:</span> Instance<span class="token punctuation">)</span><span class="token punctuation">,</span>
-          <span class="token punctuation">(</span>node<span class="token punctuation">.</span>stateNode<span class="token operator">:</span> SuspenseInstance<span class="token punctuation">)</span><span class="token punctuation">,</span>
-        <span class="token punctuation">)</span><span class="token punctuation">;</span>
-      <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>node<span class="token punctuation">.</span>tag <span class="token operator">===</span> HostPortal<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      <span class="token keyword">if</span> <span class="token punctuation">(</span>node<span class="token punctuation">.</span>child <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment">// When we go into a portal, it becomes the parent to remove from.</span>
-        <span class="token comment">// We will reassign it back when we pop the portal on the way up.</span>
-        currentParent <span class="token operator">=</span> node<span class="token punctuation">.</span>stateNode<span class="token punctuation">.</span>containerInfo<span class="token punctuation">;</span>
-        currentParentIsContainer <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
-        <span class="token comment">// Visit children because portals might contain host components.</span>
-        node<span class="token punctuation">.</span>child<span class="token punctuation">.</span><span class="token keyword">return</span> <span class="token operator">=</span> node<span class="token punctuation">;</span>
-        node <span class="token operator">=</span> node<span class="token punctuation">.</span>child<span class="token punctuation">;</span>
-        <span class="token keyword">continue</span><span class="token punctuation">;</span>
-      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span> 
+    <span class="token comment">// ...省略其其余类型</span>
     <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token comment">// class Component</span>
       <span class="token function">commitUnmount</span><span class="token punctuation">(</span>finishedRoot<span class="token punctuation">,</span> node<span class="token punctuation">,</span> renderPriorityLevel<span class="token punctuation">)</span><span class="token punctuation">;</span>
       <span class="token comment">// Visit children because we may find more host components below.</span>
       <span class="token keyword">if</span> <span class="token punctuation">(</span>node<span class="token punctuation">.</span>child <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -562,8 +484,6 @@ function App() {
       <span class="token punctuation">}</span>
       node <span class="token operator">=</span> node<span class="token punctuation">.</span><span class="token keyword">return</span><span class="token punctuation">;</span>
       <span class="token keyword">if</span> <span class="token punctuation">(</span>node<span class="token punctuation">.</span>tag <span class="token operator">===</span> HostPortal<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment">// When we go out of the portal, we need to restore the parent.</span>
-        <span class="token comment">// Since we don't keep a stack of them, we will search for it.</span>
         currentParentIsValid <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
@@ -571,7 +491,337 @@ function App() {
     node <span class="token operator">=</span> node<span class="token punctuation">.</span>sibling<span class="token punctuation">;</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-</code></pre></div></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">6/27/2021, 1:38:39 PM</span></div></footer> <!----> </main></div><div class="global-ui"><!----></div></div>
-    <script src="/react-docs/assets/js/app.ca115495.js" defer></script><script src="/react-docs/assets/js/2.e8a0a8e6.js" defer></script><script src="/react-docs/assets/js/10.3dc71f05.js" defer></script>
+</code></pre></div><p><code>unmountHostComponents</code>函数主要完成以下几件事：</p> <ul><li>根据当前节点获取真实的父DOM节点（真实DOM节点和Fiber节点是夸层级的）</li> <li>根据不同的同的tag，调用不同的函数</li> <li>循环递归删除子节点</li></ul> <p>我们以<code>HostComponent</code>/<code>HostText</code>和<code>ClassComponent</code>为例说明：</p> <ul><li><code>HostComponent</code>/<code>HostText</code>还是<code>ClassComponent</code>节点类型都会调用<code>commitUnmount</code>函数</li> <li><code>HostComponent</code>/<code>HostText</code>调用完<code>commitUnmount</code>函数后，在调用<code>removeChild</code>函数真实的删除DOM节点</li></ul> <p>下面我们来看看<code>commitUnmount</code>函数做什么了？</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitUnmount</span><span class="token punctuation">(</span>
+  <span class="token parameter">finishedRoot<span class="token operator">:</span> FiberRoot<span class="token punctuation">,</span>
+  current<span class="token operator">:</span> Fiber<span class="token punctuation">,</span>
+  renderPriorityLevel<span class="token operator">:</span> ReactPriorityLevel<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
+  <span class="token function">onCommitUnmount</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">// 根据不同tag，调用不同的方法</span>
+  <span class="token keyword">switch</span> <span class="token punctuation">(</span>current<span class="token punctuation">.</span>tag<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">case</span> FunctionComponent<span class="token operator">:</span>
+    <span class="token keyword">case</span> ForwardRef<span class="token operator">:</span>
+    <span class="token keyword">case</span> MemoComponent<span class="token operator">:</span>
+    <span class="token keyword">case</span> SimpleMemoComponent<span class="token operator">:</span>
+    <span class="token keyword">case</span> Block<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> updateQueue<span class="token operator">:</span> FunctionComponentUpdateQueue <span class="token operator">|</span> <span class="token keyword">null</span> <span class="token operator">=</span> <span class="token punctuation">(</span>current<span class="token punctuation">.</span>updateQueue<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>updateQueue <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 调用useEffect的销毁函数</span>
+        <span class="token keyword">const</span> lastEffect <span class="token operator">=</span> updateQueue<span class="token punctuation">.</span>lastEffect<span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>lastEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          <span class="token keyword">const</span> firstEffect <span class="token operator">=</span> lastEffect<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+
+          <span class="token keyword">let</span> effect <span class="token operator">=</span> firstEffect<span class="token punctuation">;</span>
+          <span class="token keyword">do</span> <span class="token punctuation">{</span>
+            <span class="token keyword">const</span> <span class="token punctuation">{</span>destroy<span class="token punctuation">,</span> tag<span class="token punctuation">}</span> <span class="token operator">=</span> effect<span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>destroy <span class="token operator">!==</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+              <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>tag <span class="token operator">&amp;</span> HookPassive<span class="token punctuation">)</span> <span class="token operator">!==</span> NoHookEffect<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token function">enqueuePendingPassiveHookEffectUnmount</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> effect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+              <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>
+                  enableProfilerTimer <span class="token operator">&amp;&amp;</span>
+                  enableProfilerCommitHooks <span class="token operator">&amp;&amp;</span>
+                  current<span class="token punctuation">.</span>mode <span class="token operator">&amp;</span> ProfileMode
+                <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                  <span class="token function">startLayoutEffectTimer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                  <span class="token function">safelyCallDestroy</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> destroy<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                  <span class="token function">recordLayoutEffectDuration</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                  <span class="token function">safelyCallDestroy</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> destroy<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+              <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+            effect <span class="token operator">=</span> effect<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+          <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>effect <span class="token operator">!==</span> firstEffect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">case</span> ClassComponent<span class="token operator">:</span> <span class="token punctuation">{</span>
+     	<span class="token comment">// 接触ref</span>
+      <span class="token function">safelyDetachRef</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">const</span> instance <span class="token operator">=</span> current<span class="token punctuation">.</span>stateNode<span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">typeof</span> instance<span class="token punctuation">.</span>componentWillUnmount <span class="token operator">===</span> <span class="token string">'function'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 调用WillUnmount生命周期</span>
+        <span class="token function">safelyCallComponentWillUnmount</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> instance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">case</span> HostComponent<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 解除ref</span>
+      <span class="token function">safelyDetachRef</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+<span class="token punctuation">}</span>
+</code></pre></div><p>从上面的代码我们可以看出<code>commitUnmount</code>主要做一下几件事：</p> <ul><li>调用useEffect的destroy函数</li> <li>调用willUnmount生命周期</li> <li>解除ref的绑定</li></ul> <h3 id="改-commitwork"><a href="#改-commitwork" class="header-anchor">#</a> 改（commitWork）</h3> <p><strong>改</strong>的入口函数为<code>commitWork</code>，<code>commitWork</code>函数代码如下：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitWork</span><span class="token punctuation">(</span><span class="token parameter">current<span class="token operator">:</span> Fiber <span class="token operator">|</span> <span class="token keyword">null</span><span class="token punctuation">,</span> finishedWork<span class="token operator">:</span> Fiber</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>supportsMutation<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...省略代码</span>
+    <span class="token comment">// 当前情况表示不支持supportsMutation的情况</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">switch</span> <span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span>tag<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">case</span> FunctionComponent<span class="token operator">:</span>
+    <span class="token keyword">case</span> ForwardRef<span class="token operator">:</span>
+    <span class="token keyword">case</span> MemoComponent<span class="token operator">:</span>
+    <span class="token keyword">case</span> SimpleMemoComponent<span class="token operator">:</span>
+    <span class="token keyword">case</span> Block<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>
+        enableProfilerTimer <span class="token operator">&amp;&amp;</span>
+        enableProfilerCommitHooks <span class="token operator">&amp;&amp;</span>
+        finishedWork<span class="token punctuation">.</span>mode <span class="token operator">&amp;</span> ProfileMode
+      <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+          <span class="token function">startLayoutEffectTimer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token comment">// 执行useLayout的销毁函数</span>
+          <span class="token function">commitHookEffectListUnmount</span><span class="token punctuation">(</span>HookLayout <span class="token operator">|</span> HookHasEffect<span class="token punctuation">,</span> finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
+          <span class="token function">recordLayoutEffectDuration</span><span class="token punctuation">(</span>finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token function">commitHookEffectListUnmount</span><span class="token punctuation">(</span>HookLayout <span class="token operator">|</span> HookHasEffect<span class="token punctuation">,</span> finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">case</span> ClassComponent<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">case</span> HostComponent<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> instance<span class="token operator">:</span> Instance <span class="token operator">=</span> finishedWork<span class="token punctuation">.</span>stateNode<span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>instance <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> newProps <span class="token operator">=</span> finishedWork<span class="token punctuation">.</span>memoizedProps<span class="token punctuation">;</span>
+        <span class="token keyword">const</span> oldProps <span class="token operator">=</span> current <span class="token operator">!==</span> <span class="token keyword">null</span> <span class="token operator">?</span> current<span class="token punctuation">.</span>memoizedProps <span class="token operator">:</span> newProps<span class="token punctuation">;</span>
+        <span class="token keyword">const</span> <span class="token keyword">type</span> <span class="token operator">=</span> finishedWork<span class="token punctuation">.</span><span class="token keyword">type</span><span class="token punctuation">;</span>
+        <span class="token keyword">const</span> updatePayload<span class="token operator">:</span> <span class="token keyword">null</span> <span class="token operator">|</span> UpdatePayload <span class="token operator">=</span> <span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span>updateQueue<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        finishedWork<span class="token punctuation">.</span>updateQueue <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>updatePayload <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          <span class="token function">commitUpdate</span><span class="token punctuation">(</span>
+            instance<span class="token punctuation">,</span>
+            updatePayload<span class="token punctuation">,</span>
+            <span class="token keyword">type</span><span class="token punctuation">,</span>
+            oldProps<span class="token punctuation">,</span>
+            newProps<span class="token punctuation">,</span>
+            finishedWork<span class="token punctuation">,</span>
+          <span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// ....省略的一些case</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p><code>commitWork</code>函数大概有200多行代码，我们省略一些代码，主要关心<code>fiber.tag</code>为Function Component和HostCoponent的情况：</p> <p>在Function Component的情况下，会调用<code>commitHookEffectListUnmount</code>函数，此函数主要是为了处理useLayout的销毁函数。</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token function">useLayout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token function">dosomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><p>而HostComponent会调用<code>commitUpdate</code>函数，<code>commitUpdate</code>函数最终会调用<code>updateDOMProperties</code>函数进行真实DOM元素属性替换。</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">updateDOMProperties</span><span class="token punctuation">(</span>
+  <span class="token parameter">domElement<span class="token operator">:</span> Element<span class="token punctuation">,</span>
+  updatePayload<span class="token operator">:</span> Array<span class="token operator">&lt;</span>any<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+  wasCustomComponentTag<span class="token operator">:</span> boolean<span class="token punctuation">,</span>
+  isCustomComponentTag<span class="token operator">:</span> boolean<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 奇数为key 偶数为value</span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> updatePayload<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i <span class="token operator">+=</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> propKey <span class="token operator">=</span> updatePayload<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> propValue <span class="token operator">=</span> updatePayload<span class="token punctuation">[</span>i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token comment">// 处理style</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>propKey <span class="token operator">===</span> <span class="token constant">STYLE</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">setValueForStyles</span><span class="token punctuation">(</span>domElement<span class="token punctuation">,</span> propValue<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>propKey <span class="token operator">===</span> <span class="token constant">DANGEROUSLY_SET_INNER_HTML</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">setInnerHTML</span><span class="token punctuation">(</span>domElement<span class="token punctuation">,</span> propValue<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>propKey <span class="token operator">===</span> <span class="token constant">CHILDREN</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token comment">// 处理child</span>
+      <span class="token function">setTextContent</span><span class="token punctuation">(</span>domElement<span class="token punctuation">,</span> propValue<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 处理剩余props</span>
+      <span class="token function">setValueForProperty</span><span class="token punctuation">(</span>domElement<span class="token punctuation">,</span> propKey<span class="token punctuation">,</span> propValue<span class="token punctuation">,</span> isCustomComponentTag<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><blockquote><p>注：HostComponent的<code>updatePayload</code>类型为数组，数组为[key,value,key,value....]的格式</p></blockquote> <h3 id="总结-2"><a href="#总结-2" class="header-anchor">#</a> 总结</h3> <p>Mutation阶段主要做一下几件事：</p> <ul><li>根据<code>effectList</code>对<code>fiber</code>进行增删改</li> <li>解绑ref</li> <li>对<code>fiber</code>进行删除时，解绑ref，调用willUnmount生命周期</li> <li>调用useLayout的销毁函数</li></ul> <h2 id="current-切换"><a href="#current-切换" class="header-anchor">#</a> current 切换</h2> <p>在进行下一阶段（layout）之前，先要完成一件事，就是current树的切换</p> <div class="language-tex extra-class"><pre class="language-tex"><code>// 将current切换为workInprogress树
+root.current = finishedWork;
+</code></pre></div><p>为什么要在只此时切换current树呢，因为在这个阶段开始之前，所有的DOM已完成渲染，生命周期钩子已经可以访问真实的DOM了，如果不切换，钩子中访问的DOM是上一次渲染的DOM，引起数据错误。</p> <h2 id="layout阶段"><a href="#layout阶段" class="header-anchor">#</a> Layout阶段</h2> <p>此阶段开始之前真实DOM已渲染完成，current树的切换也已完成，在此阶段所有的生命周期钩子都可以方位真实DOM，且能保证数据的正确行。</p> <p>Layout阶段的入口函数为：<code>commitLayoutEffects</code>，此函数主要就是调用useLayoutEffect，将useEffect放入到数组中，绑定ref。</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code>root<span class="token punctuation">.</span>current <span class="token operator">=</span> finishedWork<span class="token punctuation">;</span>
+nextEffect <span class="token operator">=</span> firstEffect<span class="token punctuation">;</span>
+<span class="token keyword">do</span> <span class="token punctuation">{</span>
+  <span class="token keyword">try</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 调用生命周期，调用useLayoutEffect，将useEffect放入到数组中，绑定ref</span>
+    <span class="token function">commitLayoutEffects</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lanes<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>error<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>nextEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><h3 id="commitlayouteffects"><a href="#commitlayouteffects" class="header-anchor">#</a> commitLayoutEffects</h3> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitLayoutEffects</span><span class="token punctuation">(</span><span class="token parameter">root<span class="token operator">:</span> FiberRoot<span class="token punctuation">,</span> committedLanes<span class="token operator">:</span> Lanes</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span>nextEffect <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 调用useLayoutEffect，将useEffect</span>
+    <span class="token function">setCurrentDebugFiberInDEV</span><span class="token punctuation">(</span>nextEffect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">const</span> flags <span class="token operator">=</span> nextEffect<span class="token punctuation">.</span>flags<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>flags <span class="token operator">&amp;</span> <span class="token punctuation">(</span>Update <span class="token operator">|</span> Callback<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> current <span class="token operator">=</span> nextEffect<span class="token punctuation">.</span>alternate<span class="token punctuation">;</span>
+      <span class="token function">commitLayoutEffectOnFiber</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> current<span class="token punctuation">,</span> nextEffect<span class="token punctuation">,</span> committedLanes<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>enableScopeAPI<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>flags <span class="token operator">&amp;</span> Ref <span class="token operator">&amp;&amp;</span> nextEffect<span class="token punctuation">.</span>tag <span class="token operator">!==</span> ScopeComponent<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">commitAttachRef</span><span class="token punctuation">(</span>nextEffect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>flags <span class="token operator">&amp;</span> Ref<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">commitAttachRef</span><span class="token punctuation">(</span>nextEffect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">resetCurrentDebugFiberInDEV</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    nextEffect <span class="token operator">=</span> nextEffect<span class="token punctuation">.</span>nextEffect<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>在<code>commitLayoutEffects</code>函数中主要调用了<code>commitLayoutEffectOnFiber</code>函数和<code>commitAttachRef</code>函数，从名字中我们可以才到，<code>commitLayoutEffectOnFiber</code>主要和useLayoutEffect相关，而<code>commitAttachRef</code>主要和ref相关。</p> <p>那么我们就来看看这两个函数实现：</p> <h3 id="commitlayouteffectonfiber"><a href="#commitlayouteffectonfiber" class="header-anchor">#</a> commitLayoutEffectOnFiber</h3> <blockquote><p>commitLayoutEffectOnFiber函数为commitLifeCycles的别名</p></blockquote> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitLifeCycles</span><span class="token punctuation">(</span>
+  <span class="token parameter">finishedRoot<span class="token operator">:</span> FiberRoot<span class="token punctuation">,</span>
+  current<span class="token operator">:</span> Fiber <span class="token operator">|</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  finishedWork<span class="token operator">:</span> Fiber<span class="token punctuation">,</span>
+  committedLanes<span class="token operator">:</span> Lanes<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
+  <span class="token keyword">switch</span> <span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span>tag<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">case</span> FunctionComponent<span class="token operator">:</span>
+    <span class="token keyword">case</span> ForwardRef<span class="token operator">:</span>
+    <span class="token keyword">case</span> SimpleMemoComponent<span class="token operator">:</span>
+    <span class="token keyword">case</span> Block<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>
+        enableProfilerTimer <span class="token operator">&amp;&amp;</span>
+        enableProfilerCommitHooks <span class="token operator">&amp;&amp;</span>
+        finishedWork<span class="token punctuation">.</span>mode <span class="token operator">&amp;</span> ProfileMode
+      <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+          <span class="token function">startLayoutEffectTimer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token function">commitHookEffectListMount</span><span class="token punctuation">(</span>HookLayout <span class="token operator">|</span> HookHasEffect<span class="token punctuation">,</span> finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
+          <span class="token function">recordLayoutEffectDuration</span><span class="token punctuation">(</span>finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 执行LayouHook</span>
+        <span class="token function">commitHookEffectListMount</span><span class="token punctuation">(</span>HookLayout <span class="token operator">|</span> HookHasEffect<span class="token punctuation">,</span> finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token comment">// 调度起useEffect</span>
+      <span class="token function">schedulePassiveEffects</span><span class="token punctuation">(</span>finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// 调用生命周期</span>
+    <span class="token keyword">case</span> ClassComponent<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> instance <span class="token operator">=</span> finishedWork<span class="token punctuation">.</span>stateNode<span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span>flags <span class="token operator">&amp;</span> Update<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>current <span class="token operator">===</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          <span class="token keyword">if</span> <span class="token punctuation">(</span>
+            enableProfilerTimer <span class="token operator">&amp;&amp;</span>
+            enableProfilerCommitHooks <span class="token operator">&amp;&amp;</span>
+            finishedWork<span class="token punctuation">.</span>mode <span class="token operator">&amp;</span> ProfileMode
+          <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">try</span> <span class="token punctuation">{</span>
+              <span class="token function">startLayoutEffectTimer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+              instance<span class="token punctuation">.</span><span class="token function">componentDidMount</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
+              <span class="token function">recordLayoutEffectDuration</span><span class="token punctuation">(</span>finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            instance<span class="token punctuation">.</span><span class="token function">componentDidMount</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+          <span class="token keyword">const</span> prevProps <span class="token operator">=</span>
+            finishedWork<span class="token punctuation">.</span>elementType <span class="token operator">===</span> finishedWork<span class="token punctuation">.</span><span class="token keyword">type</span>
+              <span class="token operator">?</span> current<span class="token punctuation">.</span>memoizedProps
+              <span class="token operator">:</span> <span class="token function">resolveDefaultProps</span><span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span><span class="token keyword">type</span><span class="token punctuation">,</span> current<span class="token punctuation">.</span>memoizedProps<span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">const</span> prevState <span class="token operator">=</span> current<span class="token punctuation">.</span>memoizedState<span class="token punctuation">;</span>
+          <span class="token keyword">if</span> <span class="token punctuation">(</span>
+            enableProfilerTimer <span class="token operator">&amp;&amp;</span>
+            enableProfilerCommitHooks <span class="token operator">&amp;&amp;</span>
+            finishedWork<span class="token punctuation">.</span>mode <span class="token operator">&amp;</span> ProfileMode
+          <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">try</span> <span class="token punctuation">{</span>
+              <span class="token function">startLayoutEffectTimer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+              instance<span class="token punctuation">.</span><span class="token function">componentDidUpdate</span><span class="token punctuation">(</span>
+                prevProps<span class="token punctuation">,</span>
+                prevState<span class="token punctuation">,</span>
+                instance<span class="token punctuation">.</span>__reactInternalSnapshotBeforeUpdate<span class="token punctuation">,</span>
+              <span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
+              <span class="token function">recordLayoutEffectDuration</span><span class="token punctuation">(</span>finishedWork<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            instance<span class="token punctuation">.</span><span class="token function">componentDidUpdate</span><span class="token punctuation">(</span>
+              prevProps<span class="token punctuation">,</span>
+              prevState<span class="token punctuation">,</span>
+              instance<span class="token punctuation">.</span>__reactInternalSnapshotBeforeUpdate<span class="token punctuation">,</span>
+            <span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">const</span> updateQueue<span class="token operator">:</span> UpdateQueue<span class="token operator">&lt;</span>
+        <span class="token operator">*</span><span class="token punctuation">,</span>
+      <span class="token operator">&gt;</span> <span class="token operator">|</span> <span class="token keyword">null</span> <span class="token operator">=</span> <span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span>updateQueue<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>updateQueue <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">commitUpdateQueue</span><span class="token punctuation">(</span>finishedWork<span class="token punctuation">,</span> updateQueue<span class="token punctuation">,</span> instance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">//...省略一些case</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>我们省略一部分代码，主要关注ClassComponent和FunctionComponent两种情况，可以看出在<code>commitLifeCycles</code>中主要是对effect和生命周期的处理，处理ClassComponent时会调用<code>componentDidUpdate</code>/<code>componentDidMount</code>的生命周期，而FunctionComponent则主要是调用<code>commitHookEffectListMount</code>函数来处理useLayouEffect，最后调用<code>schedulePassiveEffects</code>将useEffect调度起来。</p> <p>可能细心的同学发现，在ClassComponent结尾会调用<code>commitUpdateQueue</code>函数，那么这函数是做什么的呢？</p> <p>这个函数是处理setState回调函数的：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token function">setState</span><span class="token punctuation">(</span><span class="token punctuation">{</span>count<span class="token operator">:</span> <span class="token number">1321</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 此处为对调函数</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token generic-function"><span class="token function">commitUpdateQueue</span><span class="token generic class-name"><span class="token operator">&lt;</span>State<span class="token operator">&gt;</span></span></span><span class="token punctuation">(</span>
+  finishedWork<span class="token operator">:</span> Fiber<span class="token punctuation">,</span>
+  finishedQueue<span class="token operator">:</span> UpdateQueue<span class="token operator">&lt;</span>State<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+  instance<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token keyword">void</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Commit the effects</span>
+  <span class="token keyword">const</span> effects <span class="token operator">=</span> finishedQueue<span class="token punctuation">.</span>effects<span class="token punctuation">;</span>
+  finishedQueue<span class="token punctuation">.</span>effects <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>effects <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> effects<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> effect <span class="token operator">=</span> effects<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+      <span class="token keyword">const</span> callback <span class="token operator">=</span> effect<span class="token punctuation">.</span>callback<span class="token punctuation">;</span>
+     	<span class="token comment">// 调用回调函数</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>callback <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        effect<span class="token punctuation">.</span>callback <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+        <span class="token function">callCallback</span><span class="token punctuation">(</span>callback<span class="token punctuation">,</span> instance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h3 id="commitattachref"><a href="#commitattachref" class="header-anchor">#</a> commitAttachRef</h3> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">commitAttachRef</span><span class="token punctuation">(</span><span class="token parameter">finishedWork<span class="token operator">:</span> Fiber</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> ref <span class="token operator">=</span> finishedWork<span class="token punctuation">.</span>ref<span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>ref <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> instance <span class="token operator">=</span> finishedWork<span class="token punctuation">.</span>stateNode<span class="token punctuation">;</span>
+    <span class="token keyword">let</span> instanceToUse<span class="token punctuation">;</span>
+    <span class="token comment">// 获取DOM</span>
+    <span class="token keyword">switch</span> <span class="token punctuation">(</span>finishedWork<span class="token punctuation">.</span>tag<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">case</span> HostComponent<span class="token operator">:</span>
+        instanceToUse <span class="token operator">=</span> <span class="token function">getPublicInstance</span><span class="token punctuation">(</span>instance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">break</span><span class="token punctuation">;</span>
+      <span class="token keyword">default</span><span class="token operator">:</span>
+        instanceToUse <span class="token operator">=</span> instance<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>enableScopeAPI <span class="token operator">&amp;&amp;</span> finishedWork<span class="token punctuation">.</span>tag <span class="token operator">===</span> ScopeComponent<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      instanceToUse <span class="token operator">=</span> instance<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// 将DOM赋值给ref</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">typeof</span> ref <span class="token operator">===</span> <span class="token string">'function'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 如果ref是函数形式，则调用hansh</span>
+      <span class="token function">ref</span><span class="token punctuation">(</span>instanceToUse<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 如果ref是ref，则直接赋值</span>
+      ref<span class="token punctuation">.</span>current <span class="token operator">=</span> instanceToUse<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="总结-3"><a href="#总结-3" class="header-anchor">#</a> 总结</h2> <p>至此我们学完了整个commit阶段，commit阶段最主要的内容就是通过三个while循环执行effectList，在不同的阶段处理不同的内容。此阶段都是同步进行的，不能被打断。</p> <p>下一章我们将来讲解React中的diff算法。</p></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">7/11/2021, 10:24:35 AM</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/react-docs/render/bubble.html" class="prev">
+        冒泡阶段
+      </a></span> <span class="next"><a href="/react-docs/diff/diff.html">
+        概览
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/react-docs/assets/js/app.fb081603.js" defer></script><script src="/react-docs/assets/js/2.30c32e43.js" defer></script><script src="/react-docs/assets/js/4.55a0d30d.js" defer></script>
   </body>
 </html>
