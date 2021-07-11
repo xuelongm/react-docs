@@ -2,11 +2,13 @@
 
 上一节我们讲完了render阶段，本章节我们将要进入commit阶段的学习。
 
+> 本系列文章的使用react版本为17.0.2，后期版本这块的代码可能变化比较大
+
 在进入章节之前要牢记几件事：
 
 - 用于副作用的effectList单项链表已形成，`rootFiber.firstEffect`指向当前要更新的第一个节点
-- 用于`mount`的dom创建
-- 
+- 此阶段为同步更新，不可被打断
+- commit也是通过runWithPriority调度起来的，只是调度的同步任务而已
 
 commit阶段的入口函数是`commitRoot()`，此函数在`performSyncWorkOnRoot()`和`finishConcurrentRender()`函数中调用。在commit阶段是同步执行的，不可以被打断，也就是说所有的更新需要一次性完成。
 
@@ -104,7 +106,7 @@ function commitRootImpl(root, renderPriorityLevel) {
     // 操作DOM树
     nextEffect = firstEffect;
     do {
-      // 调用生命周期，调用useLayoutEffect，讲useEffect放入到数组中，绑定ref
+      // 调用生命周期，调用useLayoutEffect，将useEffect放入到数组中，绑定ref
       commitLayoutEffects(root, lanes);å
     } while (nextEffect !== null);
   
@@ -118,7 +120,7 @@ function commitRootImpl(root, renderPriorityLevel) {
 
 - 处理blur和focus相关逻辑
 - 对于class component类型，如果有`Snapshot`，会在`commitBeforeMutationEffectOnFiber`中调用`getSnapshotBeforeUpdate`
-- 调用useEffect
+- 调度useEffect（在此处只是将useEffect调度起来，并不会真正的执行）
 
 ```tsx
 function commitBeforeMutationEffects() {
@@ -181,7 +183,7 @@ const hasNewLifecycles =
 
 总而言之，`getSnapshotBeforeUpdate`是为了解决异步调用过程中的多次调用问题，我们在代码中应该尽量使用`getSnapshotBeforeUpdate`来代替原来的生命周期。
 
-### 调用useEffect
+### 调度useEffect
 
 在beforeMutitation阶段，会将useEffect加入到调度任务中，详细解析会在后面讲解useEffect时详细讲解。
 
@@ -259,21 +261,15 @@ root: FiberRoot,
 
     const primaryFlags = flags & (Placement | Update | Deletion | Hydrating);
     switch (primaryFlags) {
-        // 插入节点
+      // 插入节点
       case Placement: {
         commitPlacement(nextEffect);
-        // Clear the "placement" from effect tag so that we know that this is
-        // inserted, before any life-cycles like componentDidMount gets called.
-        // TODO: findDOMNode doesn't rely on this any more but isMounted does
-        // and isMounted is deprecated anyway so we should be able to kill this.
         nextEffect.flags &= ~Placement;
         break;
       }
 			// 插入并更新节点
       case PlacementAndUpdate: {
         commitPlacement(nextEffect);
-        // Clear the "placement" from effect tag so that we know that this is
-        // inserted, before any life-cycles like componentDidMount gets called.
         nextEffect.flags &= ~Placement;
 
         // Update
@@ -322,7 +318,7 @@ root: FiberRoot,
 
 ### 增（Placement）
 
-增加功能的入口为`commitPlacement`，`commitPlacement`代码大致如下：
+**增**的入口为`commitPlacement`，`commitPlacement`代码大致如下：
 
 ```tsx
 function commitPlacement(finishedWork: Fiber): void {
@@ -396,7 +392,7 @@ function commitPlacement(finishedWork: Fiber): void {
 
 `getHostSibling`获取兄弟DOM节点是很有意思的算法，因为Fiber节点不止包括`HostComponent`节点，还包括`ClassComponent`等节点，也就是DOM节点和Fiber节点不是同级的。如下面的例子：
 
-```react
+```tsx
 function Test() {
   return (
     <div>1212</div>
@@ -434,45 +430,35 @@ Fiber节点如下：
 
 Fiber 树
 
-```mermaid
-graph LR
-	APP --> DIV
-	DIV --> TEST
-	DIV --> BUTTON
-	TEST --> TESTDIV
-```
+<br>
+
+<img src='../../assets/graph1.jpg'>
+
+</br>
 
 DOM树
 
-```mermaid
-graph LR
-	DIV --> TESTDIV
-	DIV --> BUTTON
-  
-```
+<br>
+
+<img src='../../assets/graph2.jpg'>
+
+</br>
 
 - this.state.isShow === ture
 
 Fiber 树
+<br>
 
-```mermaid
-graph LR
-	APP --> DIV
-	DIV --> P
-	DIV --> TEST
-	DIV --> BUTTON
-	TEST --> TESTDIV
-```
+<img src='../../assets/graph3.jpg'>
 
+</br>
 DOM树
 
-```mermaid
-graph LR
-	DIV --> P
-	DIV --> TESTDIV
-	DIV --> BUTTON
- 
-```
+<br>
+
+<img src='../../assets/graph4.jpg'>
+
+</br>
 
 如上，P的兄弟节点，在DOM树上和Fiber树上是 不同级，在DOM书上，P的兄弟节点是TESTDIV，在Fiber树上P的兄弟节点是TEST。如果我们想找到P的兄弟DOM节点需要跨级寻找，树的跨级寻找的复杂度都是很高的。所以循环插入DOM可能会有性能问题。
 
@@ -553,7 +539,7 @@ function insertOrAppendPlacementNode(
 
 我们来分析下`else`的情况：
 
-```react
+```jsx
 function Test() {
   return (
     <p>test</p>
@@ -601,12 +587,8 @@ finishedRoot: FiberRoot,
   while (true) {
     if (!currentParentIsValid) {
       let parent = node.return;
+      // 获取真实dom container
       findParent: while (true) {
-        invariant(
-          parent !== null,
-          'Expected to find a host parent. This error is likely caused by ' +
-          'a bug in React. Please file an issue.',
-        );
         const parentStateNode = parent.stateNode;
         switch (parent.tag) {
           case HostComponent:
@@ -631,7 +613,7 @@ finishedRoot: FiberRoot,
       }
       currentParentIsValid = true;
     }
-
+		// HostComponent || HostText
     if (node.tag === HostComponent || node.tag === HostText) {
       commitNestedUnmounts(finishedRoot, node, renderPriorityLevel);
       // After all the children have unmounted, it is now safe to remove the
@@ -648,61 +630,10 @@ finishedRoot: FiberRoot,
         );
       }
       // Don't visit children because we already visited them.
-    } else if (enableFundamentalAPI && node.tag === FundamentalComponent) {
-      const fundamentalNode = node.stateNode.instance;
-      commitNestedUnmounts(finishedRoot, node, renderPriorityLevel);
-      // After all the children have unmounted, it is now safe to remove the
-      // node from the tree.
-      if (currentParentIsContainer) {
-        removeChildFromContainer(
-          ((currentParent: any): Container),
-          (fundamentalNode: Instance),
-        );
-      } else {
-        // 删除真实DOM
-        removeChild(
-          ((currentParent: any): Instance),
-          (fundamentalNode: Instance),
-        );
-      }
-    } else if (
-      enableSuspenseServerRenderer &&
-      node.tag === DehydratedFragment
-    ) {
-      if (enableSuspenseCallback) {
-        const hydrationCallbacks = finishedRoot.hydrationCallbacks;
-        if (hydrationCallbacks !== null) {
-          const onDeleted = hydrationCallbacks.onDeleted;
-          if (onDeleted) {
-            onDeleted((node.stateNode: SuspenseInstance));
-          }
-        }
-      }
-
-      // Delete the dehydrated suspense boundary and all of its content.
-      if (currentParentIsContainer) {
-        clearSuspenseBoundaryFromContainer(
-          ((currentParent: any): Container),
-          (node.stateNode: SuspenseInstance),
-        );
-      } else {
-        clearSuspenseBoundary(
-          ((currentParent: any): Instance),
-          (node.stateNode: SuspenseInstance),
-        );
-      }
-    } else if (node.tag === HostPortal) {
-      if (node.child !== null) {
-        // When we go into a portal, it becomes the parent to remove from.
-        // We will reassign it back when we pop the portal on the way up.
-        currentParent = node.stateNode.containerInfo;
-        currentParentIsContainer = true;
-        // Visit children because portals might contain host components.
-        node.child.return = node;
-        node = node.child;
-        continue;
-      }
+    } 
+    // ...省略其其余类型
     } else {
+      // class Component
       commitUnmount(finishedRoot, node, renderPriorityLevel);
       // Visit children because we may find more host components below.
       if (node.child !== null) {
@@ -720,8 +651,6 @@ finishedRoot: FiberRoot,
       }
       node = node.return;
       if (node.tag === HostPortal) {
-        // When we go out of the portal, we need to restore the parent.
-        // Since we don't keep a stack of them, we will search for it.
         currentParentIsValid = false;
       }
     }
@@ -731,9 +660,432 @@ finishedRoot: FiberRoot,
 }
 ```
 
+`unmountHostComponents`函数主要完成以下几件事：
+
+- 根据当前节点获取真实的父DOM节点（真实DOM节点和Fiber节点是夸层级的）
+- 根据不同的同的tag，调用不同的函数
+- 循环递归删除子节点
+
+我们以`HostComponent`/`HostText`和`ClassComponent`为例说明：
+
+- `HostComponent`/`HostText`还是`ClassComponent`节点类型都会调用`commitUnmount`函数
+- `HostComponent`/`HostText`调用完`commitUnmount`函数后，在调用`removeChild`函数真实的删除DOM节点
+
+下面我们来看看`commitUnmount`函数做什么了？
+
+```tsx
+function commitUnmount(
+  finishedRoot: FiberRoot,
+  current: Fiber,
+  renderPriorityLevel: ReactPriorityLevel,
+): void {
+  onCommitUnmount(current);
+	// 根据不同tag，调用不同的方法
+  switch (current.tag) {
+    case FunctionComponent:
+    case ForwardRef:
+    case MemoComponent:
+    case SimpleMemoComponent:
+    case Block: {
+      const updateQueue: FunctionComponentUpdateQueue | null = (current.updateQueue: any);
+      if (updateQueue !== null) {
+        // 调用useEffect的销毁函数
+        const lastEffect = updateQueue.lastEffect;
+        if (lastEffect !== null) {
+          const firstEffect = lastEffect.next;
+
+          let effect = firstEffect;
+          do {
+            const {destroy, tag} = effect;
+            if (destroy !== undefined) {
+              if ((tag & HookPassive) !== NoHookEffect) {
+                enqueuePendingPassiveHookEffectUnmount(current, effect);
+              } else {
+                if (
+                  enableProfilerTimer &&
+                  enableProfilerCommitHooks &&
+                  current.mode & ProfileMode
+                ) {
+                  startLayoutEffectTimer();
+                  safelyCallDestroy(current, destroy);
+                  recordLayoutEffectDuration(current);
+                } else {
+                  safelyCallDestroy(current, destroy);
+                }
+              }
+            }
+            effect = effect.next;
+          } while (effect !== firstEffect);
+        }
+      }
+      return;
+    }
+    case ClassComponent: {
+     	// 接触ref
+      safelyDetachRef(current);
+      const instance = current.stateNode;
+      if (typeof instance.componentWillUnmount === 'function') {
+        // 调用WillUnmount生命周期
+        safelyCallComponentWillUnmount(current, instance);
+      }
+      return;
+    }
+    case HostComponent: {
+      // 解除ref
+      safelyDetachRef(current);
+      return;
+    }
+    
+}
+```
+
+从上面的代码我们可以看出`commitUnmount`主要做一下几件事：
+
+- 调用useEffect的destroy函数
+- 调用willUnmount生命周期
+- 解除ref的绑定
+
+### 改（commitWork）
+
+**改**的入口函数为`commitWork`，`commitWork`函数代码如下：
+
+```tsx
+function commitWork(current: Fiber | null, finishedWork: Fiber): void {
+  if (!supportsMutation) {
+    // ...省略代码
+    // 当前情况表示不支持supportsMutation的情况
+  }
+
+  switch (finishedWork.tag) {
+    case FunctionComponent:
+    case ForwardRef:
+    case MemoComponent:
+    case SimpleMemoComponent:
+    case Block: {
+      if (
+        enableProfilerTimer &&
+        enableProfilerCommitHooks &&
+        finishedWork.mode & ProfileMode
+      ) {
+        try {
+          startLayoutEffectTimer();
+          // 执行useLayout的销毁函数
+          commitHookEffectListUnmount(HookLayout | HookHasEffect, finishedWork);
+        } finally {
+          recordLayoutEffectDuration(finishedWork);
+        }
+      } else {
+        commitHookEffectListUnmount(HookLayout | HookHasEffect, finishedWork);
+      }
+      return;
+    }
+    case ClassComponent: {
+      return;
+    }
+    case HostComponent: {
+      const instance: Instance = finishedWork.stateNode;
+      if (instance != null) {
+        const newProps = finishedWork.memoizedProps;
+        const oldProps = current !== null ? current.memoizedProps : newProps;
+        const type = finishedWork.type;
+        const updatePayload: null | UpdatePayload = (finishedWork.updateQueue: any);
+        finishedWork.updateQueue = null;
+        if (updatePayload !== null) {
+          commitUpdate(
+            instance,
+            updatePayload,
+            type,
+            oldProps,
+            newProps,
+            finishedWork,
+          );
+        }
+      }
+      return;
+    }
+    // ....省略的一些case
+}
+```
+
+`commitWork`函数大概有200多行代码，我们省略一些代码，主要关心`fiber.tag`为Function Component和HostCoponent的情况：
+
+在Function Component的情况下，会调用`commitHookEffectListUnmount`函数，此函数主要是为了处理useLayout的销毁函数。
+
+```tsx
+useLayout(() => {
+	return () => dosomething()
+})
+```
+
+而HostComponent会调用`commitUpdate`函数，`commitUpdate`函数最终会调用`updateDOMProperties`函数进行真实DOM元素属性替换。
+
+```tsx
+function updateDOMProperties(
+  domElement: Element,
+  updatePayload: Array<any>,
+  wasCustomComponentTag: boolean,
+  isCustomComponentTag: boolean,
+): void {
+  // 奇数为key 偶数为value
+  for (let i = 0; i < updatePayload.length; i += 2) {
+    const propKey = updatePayload[i];
+    const propValue = updatePayload[i + 1];
+    // 处理style
+    if (propKey === STYLE) {
+      setValueForStyles(domElement, propValue);
+    } else if (propKey === DANGEROUSLY_SET_INNER_HTML) {
+      setInnerHTML(domElement, propValue);
+    } else if (propKey === CHILDREN) { // 处理child
+      setTextContent(domElement, propValue);
+    } else {
+      // 处理剩余props
+      setValueForProperty(domElement, propKey, propValue, isCustomComponentTag);
+    }
+  }
+}
+```
+
+> 注：HostComponent的`updatePayload`类型为数组，数组为[key,value,key,value....]的格式
+
+### 总结
+
+Mutation阶段主要做一下几件事：
+
+- 根据`effectList`对`fiber`进行增删改
+- 解绑ref
+- 对`fiber`进行删除时，解绑ref，调用willUnmount生命周期
+- 调用useLayout的销毁函数
+
+## current 切换
+
+在进行下一阶段（layout）之前，先要完成一件事，就是current树的切换
+
+```tex
+// 将current切换为workInprogress树
+root.current = finishedWork;
+```
+
+为什么要在只此时切换current树呢，因为在这个阶段开始之前，所有的DOM已完成渲染，生命周期钩子已经可以访问真实的DOM了，如果不切换，钩子中访问的DOM是上一次渲染的DOM，引起数据错误。
+
+## Layout阶段
+
+此阶段开始之前真实DOM已渲染完成，current树的切换也已完成，在此阶段所有的生命周期钩子都可以方位真实DOM，且能保证数据的正确行。
+
+Layout阶段的入口函数为：`commitLayoutEffects`，此函数主要就是调用useLayoutEffect，将useEffect放入到数组中，绑定ref。
+
+```tsx
+root.current = finishedWork;
+nextEffect = firstEffect;
+do {
+  try {
+    // 调用生命周期，调用useLayoutEffect，将useEffect放入到数组中，绑定ref
+    commitLayoutEffects(root, lanes);
+  } catch (error) {
+  }
+}
+} while (nextEffect !== null);
+```
+
+### commitLayoutEffects
+
+```tsx
+function commitLayoutEffects(root: FiberRoot, committedLanes: Lanes) {
+  while (nextEffect !== null) {
+    // 调用useLayoutEffect，将useEffect
+    setCurrentDebugFiberInDEV(nextEffect);
+
+    const flags = nextEffect.flags;
+
+    if (flags & (Update | Callback)) {
+      const current = nextEffect.alternate;
+      commitLayoutEffectOnFiber(root, current, nextEffect, committedLanes);
+    }
+
+    if (enableScopeAPI) {
+      if (flags & Ref && nextEffect.tag !== ScopeComponent) {
+        commitAttachRef(nextEffect);
+      }
+    } else {
+      if (flags & Ref) {
+        commitAttachRef(nextEffect);
+      }
+    }
+
+    resetCurrentDebugFiberInDEV();
+    nextEffect = nextEffect.nextEffect;
+  }
+}
+```
+
+在`commitLayoutEffects`函数中主要调用了`commitLayoutEffectOnFiber`函数和`commitAttachRef`函数，从名字中我们可以才到，`commitLayoutEffectOnFiber`主要和useLayoutEffect相关，而`commitAttachRef`主要和ref相关。
+
+那么我们就来看看这两个函数实现：
+
+### commitLayoutEffectOnFiber
+
+>  commitLayoutEffectOnFiber函数为commitLifeCycles的别名
+
+```tsx
+function commitLifeCycles(
+  finishedRoot: FiberRoot,
+  current: Fiber | null,
+  finishedWork: Fiber,
+  committedLanes: Lanes,
+): void {
+  switch (finishedWork.tag) {
+    case FunctionComponent:
+    case ForwardRef:
+    case SimpleMemoComponent:
+    case Block: {
+      if (
+        enableProfilerTimer &&
+        enableProfilerCommitHooks &&
+        finishedWork.mode & ProfileMode
+      ) {
+        try {
+          startLayoutEffectTimer();
+          commitHookEffectListMount(HookLayout | HookHasEffect, finishedWork);
+        } finally {
+          recordLayoutEffectDuration(finishedWork);
+        }
+      } else {
+        // 执行LayouHook
+        commitHookEffectListMount(HookLayout | HookHasEffect, finishedWork);
+      }
+      // 调度起useEffect
+      schedulePassiveEffects(finishedWork);
+      return;
+    }
+    // 调用生命周期
+    case ClassComponent: {
+      const instance = finishedWork.stateNode;
+      if (finishedWork.flags & Update) {
+        if (current === null) {
+          if (
+            enableProfilerTimer &&
+            enableProfilerCommitHooks &&
+            finishedWork.mode & ProfileMode
+          ) {
+            try {
+              startLayoutEffectTimer();
+              instance.componentDidMount();
+            } finally {
+              recordLayoutEffectDuration(finishedWork);
+            }
+          } else {
+            instance.componentDidMount();
+          }
+        } else {
+          const prevProps =
+            finishedWork.elementType === finishedWork.type
+              ? current.memoizedProps
+              : resolveDefaultProps(finishedWork.type, current.memoizedProps);
+          const prevState = current.memoizedState;
+          if (
+            enableProfilerTimer &&
+            enableProfilerCommitHooks &&
+            finishedWork.mode & ProfileMode
+          ) {
+            try {
+              startLayoutEffectTimer();
+              instance.componentDidUpdate(
+                prevProps,
+                prevState,
+                instance.__reactInternalSnapshotBeforeUpdate,
+              );
+            } finally {
+              recordLayoutEffectDuration(finishedWork);
+            }
+          } else {
+            instance.componentDidUpdate(
+              prevProps,
+              prevState,
+              instance.__reactInternalSnapshotBeforeUpdate,
+            );
+          }
+        }
+      }
+      const updateQueue: UpdateQueue<
+        *,
+      > | null = (finishedWork.updateQueue: any);
+      if (updateQueue !== null) {
+        commitUpdateQueue(finishedWork, updateQueue, instance);
+      }
+      return;
+    }
+    //...省略一些case
+  }
+}
+```
+
+我们省略一部分代码，主要关注ClassComponent和FunctionComponent两种情况，可以看出在`commitLifeCycles`中主要是对effect和生命周期的处理，处理ClassComponent时会调用`componentDidUpdate`/`componentDidMount`的生命周期，而FunctionComponent则主要是调用`commitHookEffectListMount`函数来处理useLayouEffect，最后调用`schedulePassiveEffects`将useEffect调度起来。
+
+可能细心的同学发现，在ClassComponent结尾会调用`commitUpdateQueue`函数，那么这函数是做什么的呢？
+
+这个函数是处理setState回调函数的：
+
+```tsx
+setState({count: 1321}, () => {
+  // 此处为对调函数
+});
+
+export function commitUpdateQueue<State>(
+  finishedWork: Fiber,
+  finishedQueue: UpdateQueue<State>,
+  instance: any,
+): void {
+  // Commit the effects
+  const effects = finishedQueue.effects;
+  finishedQueue.effects = null;
+  if (effects !== null) {
+    for (let i = 0; i < effects.length; i++) {
+      const effect = effects[i];
+      const callback = effect.callback;
+     	// 调用回调函数
+      if (callback !== null) {
+        effect.callback = null;
+        callCallback(callback, instance);
+      }
+    }
+  }
+}
+```
 
 
 
+### commitAttachRef
 
+```tsx
+function commitAttachRef(finishedWork: Fiber) {
+  const ref = finishedWork.ref;
+  if (ref !== null) {
+    const instance = finishedWork.stateNode;
+    let instanceToUse;
+    // 获取DOM
+    switch (finishedWork.tag) {
+      case HostComponent:
+        instanceToUse = getPublicInstance(instance);
+        break;
+      default:
+        instanceToUse = instance;
+    }
+    if (enableScopeAPI && finishedWork.tag === ScopeComponent) {
+      instanceToUse = instance;
+    }
+    // 将DOM赋值给ref
+    if (typeof ref === 'function') {
+      // 如果ref是函数形式，则调用hansh
+      ref(instanceToUse);
+    } else {
+      // 如果ref是ref，则直接赋值
+      ref.current = instanceToUse;
+    }
+  }
+}
+```
 
+## 总结
 
+至此我们学完了整个commit阶段，commit阶段最主要的内容就是通过三个while循环执行effectList，在不同的阶段处理不同的内容。此阶段都是同步进行的，不能被打断。
+
+下一章我们将来讲解React中的diff算法。

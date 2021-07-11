@@ -26,6 +26,18 @@ module.exports = {
                     '/render/bubble'
                 ]
             },
+            {
+                title: 'commit',
+                children: [
+                    './commit/commit'
+                ]
+            },
+            {
+                title: 'diff',
+                children: [
+                    '/diff/diff'
+                ]
+            }
 
         ],
         lastUpdated: 'Last Updated',
