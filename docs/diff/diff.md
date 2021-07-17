@@ -134,7 +134,7 @@ export function reconcileChildren(
 
 从上述代码可以看出，在`reconcileChildFibers()`中主要处理三中类型的newChild：
 
-- Object：表示为单节点，切不为text的节点
+- Object：表示为单节点，且不为text的节点
 - string|number： 表示当前fiber对应的DOM类型为TextDom
 - Array：表示同级有多个节点
 
@@ -145,7 +145,7 @@ export function reconcileChildren(
 </ul>
 ```
 
-本章中我们主要讨论两种情况：Object和Array
+本章中我们主要讨论两种情况：Object和Array，也就是单节点对比和多节点对比。
 
 ## 单节点对比
 
@@ -270,7 +270,7 @@ function reconcileSingleElement(
   1. 调用`deleteRemainingChildren()`删除兄弟节点
   2. 调用`useFiber()`实现fiber节点的复用
   3. 调用`coerceRef()`处理ref
-- 当`child !== null`且key相等，当是tag不相等时，会直接调用`deleteRemainingChildren()`删除当前节点，及其兄弟节点，同时跳出循环，进入创建fiber的流程。
+- 当`child !== null`且key相等，tag不相等时，会直接调用`deleteRemainingChildren()`删除当前节点，及其兄弟节点，同时跳出循环，进入创建fiber的流程。
 - 当`child === null`时：直接调用`createFiberFromElement()`进行节点的创建。
 
 举个栗子：
@@ -412,7 +412,7 @@ let nextOldFiber = null;
 - resultingFirstChild：对比完成后返回的fiber
 - previousNewFiber：中间状态
 - oldFiber：即上一次渲染的fiber
-- lastPlacedIndex：
+- lastPlacedIndex：此值用来潘判断节点是否移动了了，在`placeChild()`使用
 - newIdx：新的索引值
 - nextOldFiber：下一个fiber
 
