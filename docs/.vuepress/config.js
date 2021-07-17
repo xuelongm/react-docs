@@ -37,6 +37,12 @@ module.exports = {
                 children: [
                     '/diff/diff'
                 ]
+            },
+            {
+                title: '状态更新',
+                children: [
+                    '/state/state.md'
+                ]
             }
 
         ],
