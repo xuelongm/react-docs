@@ -42,7 +42,7 @@ type Update<S, A> = {
 - lane：优先级字段，后面可能会涉及一部分优先级的内容。
 - tag：更新类型：UpdateState， ReplaceState，  ForceUpdate ，CaptureUpdate。
 - payload：payloay为setState的第一参数。
-- callback：为setState的第二参数，会在Commit阶段调用，我们在Commit阶段讲过，这个参数会放入到`fiber.updateQueue.effect`中
+- callback：为setState的第二参数，会在Commit阶段调用，我们在Commit阶段讲过，这个参数会放入到`fiber.updateQueue.effects`中
 - next：下个一个update
 
 那么React中是怎么保存Update呢？
@@ -105,7 +105,7 @@ export function enqueueUpdate<State>(fiber: Fiber, update: Update<State>) {
 }
 ```
 
-有代码可以看出，`enqueueUpdate`函数相当简单，下面我们举个栗子来说明这个链表形成的过程：
+由代码可以看出，`enqueueUpdate`函数相当简单，下面我们举个栗子来说明这个链表形成的过程：
 
 假设我们要创建四个Update，分别为：A，B，C，D，创建过程如下：
 
@@ -146,7 +146,7 @@ export type UpdateQueue<State> = {
 - share：本次更新所有Update。
 - effects：setState第二个参数。
 
-好，下面让我们来看根据Update计算出memoizedState的过程`processUpdateQueue`函数`processUpdateQueue`：
+好，下面让我们来看根据Update计算出memoizedState的过程`processUpdateQueue`函数：
 
 > 下面函数比较复杂，我会详细的写注释，具体的流程可以重复跟踪下代码
 
@@ -355,7 +355,7 @@ export function processUpdateQueue<State>(
 
 ## 正确性
 
-在React中，高优先级的任务可以低优先级的任务，中断任务后，React会从Root从新构建workInProgress，当前构建的workInprogress会被舍弃掉，那么React是怎么保存本次的Update呢？其实很简单，我们都知道，React中总会维护两棵树，current Tree和workInprogress Tree，current Tree在commit之前，会一直保存，所以主要把需要更新的Update保存在current Tree中即可。
+在React中，高优先级的任务可以中断低优先级的任务，中断任务后，React会从Root从新构建workInProgress，当前构建的workInprogress会被舍弃掉，那么React是怎么保存本次的Update呢？其实很简单，我们都知道，React中总会维护两棵树，current Tree和workInprogress Tree，current Tree在commit之前，会一直保存，所以把需要更新的Update保存在current Tree中即可。
 
 代码如下：
 
@@ -379,7 +379,7 @@ if (current !== null) {
 
 ## update状态的连续性
 
-我们都知道update 是有优先级，如果有优先级的update，如果某个update的优先级低于本次更新的优先级，会被跳过去，那么下次跟新保证数据的连续性。在代码中注释给了完整的解释。
+我们都知道update是有优先级（也就是lane字段），如果某个update的优先级低于本次更新的优先级，会被跳过去，那么下次跟新保证数据的连续性。在代码中注释给了完整的解释。
 
 我们来看看代码注释中给的解释：
 
@@ -411,9 +411,9 @@ if (current !== null) {
 // resources, but the final state is always the same.
 ```
 
-下面让我们解释下：
+下面我来翻译下这段注释：
 
-好比我们有四个Update，A1，B2，C1，D2，期中数字代表优先级，A，B，C，D代表更新的内容。
+好比我们有四个Update，A1，B2，C1，D2，期中数字代表优先级，数字越低优先级越高，A，B，C，D代表更新的内容。
 
 - 第一次更新，优先级为1
 
