@@ -41,7 +41,8 @@ module.exports = {
             {
                 title: '状态更新',
                 children: [
-                    '/state/state.md'
+                    '/state/state.md',
+                    '/state/render.md'
                 ]
             }
 
