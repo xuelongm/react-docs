@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>渲染及更新 | React Docs</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    
+    <meta name="description" content="docs React 17x">
+    
+    <link rel="preload" href="/react-docs/assets/css/0.styles.81a1deae.css" as="style"><link rel="preload" href="/react-docs/assets/js/app.8dcc01f4.js" as="script"><link rel="preload" href="/react-docs/assets/js/2.ba3186f0.js" as="script"><link rel="preload" href="/react-docs/assets/js/9.c78a0cc5.js" as="script"><link rel="prefetch" href="/react-docs/assets/js/10.97b71cf3.js"><link rel="prefetch" href="/react-docs/assets/js/11.8e76ad41.js"><link rel="prefetch" href="/react-docs/assets/js/12.d7ad81f6.js"><link rel="prefetch" href="/react-docs/assets/js/13.355108e6.js"><link rel="prefetch" href="/react-docs/assets/js/14.17c70a90.js"><link rel="prefetch" href="/react-docs/assets/js/15.8f367758.js"><link rel="prefetch" href="/react-docs/assets/js/3.3c0ce97a.js"><link rel="prefetch" href="/react-docs/assets/js/4.53506a7c.js"><link rel="prefetch" href="/react-docs/assets/js/5.4519f0f6.js"><link rel="prefetch" href="/react-docs/assets/js/6.8eb97706.js"><link rel="prefetch" href="/react-docs/assets/js/7.a6b7cea6.js"><link rel="prefetch" href="/react-docs/assets/js/8.df1bb6b2.js">
+    <link rel="stylesheet" href="/react-docs/assets/css/0.styles.81a1deae.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/react-docs/" class="home-link router-link-active"><!----> <span class="site-name">React Docs</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/react-docs/" class="nav-link">
+  Home
+</a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/react-docs/" class="nav-link">
+  Home
+</a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/react-docs/" aria-current="page" class="sidebar-link">首页</a></li><li><a href="/react-docs/concept.html" class="sidebar-link">概念篇</a></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>render</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>commit</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>diff</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>状态更新</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/react-docs/state/state.html" class="sidebar-link">概览</a></li><li><a href="/react-docs/state/render.html" aria-current="page" class="active sidebar-link">渲染及更新</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/react-docs/state/render.html#legacy模块" class="sidebar-link">Legacy模块</a></li><li class="sidebar-sub-header"><a href="/react-docs/state/render.html#其他模式" class="sidebar-link">其他模式</a></li><li class="sidebar-sub-header"><a href="/react-docs/state/render.html#this-setstate" class="sidebar-link">this.setState</a></li></ul></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="渲染及更新"><a href="#渲染及更新" class="header-anchor">#</a> 渲染及更新</h1> <p>经过前面这么多章的铺垫，今天我们终于可以看看React的起点<code>ReactDOM.render</code>，在React18之前这是唯一入口函数，在React18中新增了<code>createRoot().render()</code>入口。</p> <blockquote><p><code>ReactDOM.render</code>函数创建的程序都是legacy模式，而有<code>createRoot().render()</code>创建的程序为concurrent模式。</p></blockquote> <p>那么我们下面来看看两种模式入口的异同</p> <h2 id="legacy模块"><a href="#legacy模块" class="header-anchor">#</a> Legacy模块</h2> <p>Legacy模块是React18之前一直采取的模式，主要是同步更新。其模式的入口为<code>ReactDOM.render</code></p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">render</span><span class="token punctuation">(</span>
+  <span class="token parameter">element<span class="token operator">:</span> React$Element<span class="token operator">&lt;</span>any<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+  container<span class="token operator">:</span> Container<span class="token punctuation">,</span>
+  callback<span class="token operator">:</span> <span class="token operator">?</span>Function<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token comment">// ...忽略部分代码</span>
+  <span class="token comment">// 创建fiberRoot和rootFiber</span>
+  <span class="token keyword">return</span> <span class="token function">legacyRenderSubtreeIntoContainer</span><span class="token punctuation">(</span>
+    <span class="token keyword">null</span><span class="token punctuation">,</span>
+    element<span class="token punctuation">,</span>
+    container<span class="token punctuation">,</span>
+    <span class="token boolean">false</span><span class="token punctuation">,</span>
+    callback<span class="token punctuation">,</span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>可以看出render函数极其简单，只是调用Legacy模式的入口函数<code>legacyRenderSubtreeIntoContainer</code>。</p> <p>render函数共有三个参数：</p> <ul><li>element：是我们创建的App应用</li> <li>container：DOM 容器</li> <li>callback：首次渲染完成后，会调用callback</li></ul> <h3 id="入口"><a href="#入口" class="header-anchor">#</a> 入口</h3> <p>作为legacy模式入口函数<code>legacyRenderSubtreeIntoContainer</code>做什么了呢？<code>legacyRenderSubtreeIntoContainer</code>函数主要做一下几件事：</p> <ul><li>调用<code>legacyCreateRootFromDOMContainer</code>创建FiberRoot和rootFiber，FiberRoot全局唯一，而rootFiber不一定</li> <li>判断是否为mount阶段，如果为mount阶段，创建FiberRoot，并将FiberRoot挂载到container上</li> <li>如果有callback函数，处理callback函数的this问题</li> <li>调用<code>updateContainer</code>，启动后续流程</li></ul> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">function</span> <span class="token function">legacyRenderSubtreeIntoContainer</span><span class="token punctuation">(</span>
+  <span class="token parameter">parentComponent<span class="token operator">:</span> <span class="token operator">?</span>React$Component<span class="token operator">&lt;</span>any<span class="token punctuation">,</span> any<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+  children<span class="token operator">:</span> ReactNodeList<span class="token punctuation">,</span>
+  container<span class="token operator">:</span> Container<span class="token punctuation">,</span>
+  forceHydrate<span class="token operator">:</span> boolean<span class="token punctuation">,</span>
+  callback<span class="token operator">:</span> <span class="token operator">?</span>Function<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>__DEV__<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">topLevelUpdateWarnings</span><span class="token punctuation">(</span>container<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">warnOnInvalidCallback</span><span class="token punctuation">(</span>callback <span class="token operator">===</span> <span class="token keyword">undefined</span> <span class="token operator">?</span> <span class="token keyword">null</span> <span class="token operator">:</span> callback<span class="token punctuation">,</span> <span class="token string">'render'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// TODO: Without `any` type, Flow says &quot;Property cannot be accessed on any</span>
+  <span class="token comment">// member of intersection type.&quot; Whyyyyyy.</span>
+  <span class="token keyword">let</span> root<span class="token operator">:</span> RootType <span class="token operator">=</span> <span class="token punctuation">(</span>container<span class="token punctuation">.</span>_reactRootContainer<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">let</span> fiberRoot<span class="token punctuation">;</span>
+  <span class="token comment">// 根据root是否存在，判断是否更新或mount</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>root<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Initial mount</span>
+    <span class="token comment">// container默认会挂载FiberRoot</span>
+    root <span class="token operator">=</span> container<span class="token punctuation">.</span>_reactRootContainer <span class="token operator">=</span> <span class="token function">legacyCreateRootFromDOMContainer</span><span class="token punctuation">(</span>
+      container<span class="token punctuation">,</span>
+      forceHydrate<span class="token punctuation">,</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// fiberRoot</span>
+    fiberRoot <span class="token operator">=</span> root<span class="token punctuation">.</span>_internalRoot<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">typeof</span> callback <span class="token operator">===</span> <span class="token string">'function'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> originalCallback <span class="token operator">=</span> callback<span class="token punctuation">;</span>
+      <span class="token function-variable function">callback</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> instance <span class="token operator">=</span> <span class="token function">getPublicRootInstance</span><span class="token punctuation">(</span>fiberRoot<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">originalCallback</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>instance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// Initial mount should not be batched.</span>
+    <span class="token function">unbatchedUpdates</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token function">updateContainer</span><span class="token punctuation">(</span>children<span class="token punctuation">,</span> fiberRoot<span class="token punctuation">,</span> parentComponent<span class="token punctuation">,</span> callback<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 当前fiberRoot</span>
+    fiberRoot <span class="token operator">=</span> root<span class="token punctuation">.</span>_internalRoot<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">typeof</span> callback <span class="token operator">===</span> <span class="token string">'function'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> originalCallback <span class="token operator">=</span> callback<span class="token punctuation">;</span>
+      <span class="token function-variable function">callback</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> instance <span class="token operator">=</span> <span class="token function">getPublicRootInstance</span><span class="token punctuation">(</span>fiberRoot<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">originalCallback</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>instance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// Update</span>
+    <span class="token function">updateContainer</span><span class="token punctuation">(</span>children<span class="token punctuation">,</span> fiberRoot<span class="token punctuation">,</span> parentComponent<span class="token punctuation">,</span> callback<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> <span class="token function">getPublicRootInstance</span><span class="token punctuation">(</span>fiberRoot<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h3 id="fiberroot和rootfiber创建"><a href="#fiberroot和rootfiber创建" class="header-anchor">#</a> FiberRoot和RootFiber创建</h3> <div class="language-tsx extra-class"><pre class="language-tsx"><code>legacyCreateRootFromDOMContainerfunction <span class="token function">legacyCreateRootFromDOMContainer</span><span class="token punctuation">(</span>
+  <span class="token parameter">container<span class="token operator">:</span> Container<span class="token punctuation">,</span>
+  forceHydrate<span class="token operator">:</span> boolean<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span><span class="token operator">:</span> RootType <span class="token punctuation">{</span>
+  <span class="token comment">// 判断当前模式是否为ssr</span>
+  <span class="token keyword">const</span> shouldHydrate <span class="token operator">=</span>
+    forceHydrate <span class="token operator">||</span> <span class="token function">shouldHydrateDueToLegacyHeuristic</span><span class="token punctuation">(</span>container<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">// First clear any existing content.</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>shouldHydrate<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> warned <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    <span class="token keyword">let</span> rootSibling<span class="token punctuation">;</span>
+    <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>rootSibling <span class="token operator">=</span> container<span class="token punctuation">.</span>lastChild<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// ...省略dev代码</span>
+      <span class="token comment">// 删除container中的children</span>
+      container<span class="token punctuation">.</span><span class="token function">removeChild</span><span class="token punctuation">(</span>rootSibling<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">// ...省略dev代码</span>
+	<span class="token comment">// 创建fiberRoot</span>
+  <span class="token keyword">return</span> <span class="token function">createLegacyRoot</span><span class="token punctuation">(</span>
+    container<span class="token punctuation">,</span>
+    shouldHydrate
+      <span class="token operator">?</span> <span class="token punctuation">{</span>
+          hydrate<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+      <span class="token operator">:</span> <span class="token keyword">undefined</span><span class="token punctuation">,</span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">createLegacyRoot</span><span class="token punctuation">(</span>
+  <span class="token parameter">container<span class="token operator">:</span> Container<span class="token punctuation">,</span>
+  options<span class="token operator">?</span><span class="token operator">:</span> RootOptions<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span><span class="token operator">:</span> RootType <span class="token punctuation">{</span>
+  <span class="token comment">// 创建RootFiber，并且模式为LegacyRoot</span>
+  <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ReactDOMBlockingRoot</span><span class="token punctuation">(</span>container<span class="token punctuation">,</span> LegacyRoot<span class="token punctuation">,</span> options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><blockquote><p>FiberRoot和RootFiber是相互引用的，FiberRoot.current -&gt; RootFiber，而RootFiber.stateNode -&gt; FiberRoot</p></blockquote> <p>在<code>ReactDOMBlockingRoot</code>函数中调用链如下：</p> <br> <img src="/react-docs/assets/img/create-fiber.2dca453f.png"> <br> <blockquote><p>在new ReactDOMBlockingRoot时，传入的模式为LegacyRoot</p></blockquote> <p>在<code>createFiberRoot</code>函数中会调用<code>new FiberRootNode</code>创建FiberRoot，调用<code>createHostRootFiber</code>创建rootFiber，同时调用<code>initializeUpdateQueue</code>来初始化RootFiber的<code>UpdateQueue</code>类型。</p> <p>至此我们初始化工作完成，下面我们将进行update的创建，触发一次新的更新</p> <h3 id="update"><a href="#update" class="header-anchor">#</a> update</h3> <p>update的入口函数为<code>updateContainer</code>，代码如下：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token function">unbatchedUpdates</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 调用updateContainer，创建update，触发一次更新</span>
+  <span class="token function">updateContainer</span><span class="token punctuation">(</span>children<span class="token punctuation">,</span> fiberRoot<span class="token punctuation">,</span> parentComponent<span class="token punctuation">,</span> callback<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">updateContainer</span><span class="token punctuation">(</span>
+  <span class="token parameter">element<span class="token operator">:</span> ReactNodeList<span class="token punctuation">,</span>
+  container<span class="token operator">:</span> OpaqueRoot<span class="token punctuation">,</span>
+  parentComponent<span class="token operator">:</span> <span class="token operator">?</span>React$Component<span class="token operator">&lt;</span>any<span class="token punctuation">,</span> any<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+  callback<span class="token operator">:</span> <span class="token operator">?</span>Function<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span><span class="token operator">:</span> Lane <span class="token punctuation">{</span>
+  <span class="token comment">// ...省略dev</span>
+  <span class="token comment">// root Fiber</span>
+  <span class="token keyword">const</span> current <span class="token operator">=</span> container<span class="token punctuation">.</span>current<span class="token punctuation">;</span>
+  <span class="token keyword">const</span> eventTime <span class="token operator">=</span> <span class="token function">requestEventTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">// ...省略dev</span>
+  <span class="token comment">// 获取更新优先级</span>
+  <span class="token keyword">const</span> lane <span class="token operator">=</span> <span class="token function">requestUpdateLane</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>enableSchedulingProfiler<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">markRenderScheduled</span><span class="token punctuation">(</span>lane<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+	<span class="token comment">// 处理context</span>
+  <span class="token keyword">const</span> context <span class="token operator">=</span> <span class="token function">getContextForSubtree</span><span class="token punctuation">(</span>parentComponent<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>container<span class="token punctuation">.</span>context <span class="token operator">===</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    container<span class="token punctuation">.</span>context <span class="token operator">=</span> context<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    container<span class="token punctuation">.</span>pendingContext <span class="token operator">=</span> context<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// ...省略dev</span>
+
+  <span class="token comment">// 创建update</span>
+  <span class="token keyword">const</span> update <span class="token operator">=</span> <span class="token function">createUpdate</span><span class="token punctuation">(</span>eventTime<span class="token punctuation">,</span> lane<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">// update payload 为app</span>
+  update<span class="token punctuation">.</span>payload <span class="token operator">=</span> <span class="token punctuation">{</span>element<span class="token punctuation">}</span><span class="token punctuation">;</span>
+	<span class="token comment">// 处理callback</span>
+  callback <span class="token operator">=</span> callback <span class="token operator">===</span> <span class="token keyword">undefined</span> <span class="token operator">?</span> <span class="token keyword">null</span> <span class="token operator">:</span> callback<span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>callback <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>__DEV__<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">typeof</span> callback <span class="token operator">!==</span> <span class="token string">'function'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span>
+          <span class="token string">'render(...): Expected the last optional `callback` argument to be a '</span> <span class="token operator">+</span>
+            <span class="token string">'function. Instead received: %s.'</span><span class="token punctuation">,</span>
+          callback<span class="token punctuation">,</span>
+        <span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    update<span class="token punctuation">.</span>callback <span class="token operator">=</span> callback<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+	<span class="token comment">// 将update加入到updateQueue</span>
+  <span class="token function">enqueueUpdate</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> update<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">// 调度更新</span>
+  <span class="token function">scheduleUpdateOnFiber</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> lane<span class="token punctuation">,</span> eventTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> lane<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p><code>updateContainer</code>主要做一下几件事：</p> <ul><li>获取本次更新的lane优先级</li> <li>处理context</li> <li>调用<code>createUpdate</code>创建update</li> <li>调用<code>enqueueUpdate</code>将update加入到updateQueue中</li> <li>调度更新（<code>scheduleUpdateOnFiber</code>）</li></ul> <h3 id="调度更新"><a href="#调度更新" class="header-anchor">#</a> 调度更新</h3> <p>在react中所有的更新都要走调度系统，而调度系统入口就是<code>scheduleUpdateOnFiber</code>。此函数比较复杂，我会对代码进行注释：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">scheduleUpdateOnFiber</span><span class="token punctuation">(</span>
+  <span class="token parameter">fiber<span class="token operator">:</span> Fiber<span class="token punctuation">,</span>
+  lane<span class="token operator">:</span> Lane<span class="token punctuation">,</span>
+  eventTime<span class="token operator">:</span> number<span class="token punctuation">,</span></span>
+<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 检测代码，可以忽略</span>
+  <span class="token function">checkForNestedUpdates</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">warnAboutRenderPhaseUpdatesInDEV</span><span class="token punctuation">(</span>fiber<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// 获取到fiberroot,react中，所有的更新都是从root开始的</span>
+  <span class="token keyword">const</span> root <span class="token operator">=</span> <span class="token function">markUpdateLaneFromFiberToRoot</span><span class="token punctuation">(</span>fiber<span class="token punctuation">,</span> lane<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">// 如果fiberroot为null，直接跳出当前更新</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>root <span class="token operator">===</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">warnAboutUpdateOnUnmountedFiberInDEV</span><span class="token punctuation">(</span>fiber<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// Mark that the root has a pending update.</span>
+  <span class="token comment">// 将root设置为待更新的状态</span>
+  <span class="token function">markRootUpdated</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lane<span class="token punctuation">,</span> eventTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">// 这个if条件是为了处理渲染中断的情况，后期讲concurrent的时候，会详细讲这块</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>root <span class="token operator">===</span> workInProgressRoot<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Received an update to a tree that's in the middle of rendering. Mark</span>
+    <span class="token comment">// that there was an interleaved update work on this root. Unless the</span>
+    <span class="token comment">// `deferRenderPhaseUpdateToNextBatch` flag is off and this is a render</span>
+    <span class="token comment">// phase update. In that case, we don't treat render phase updates as if</span>
+    <span class="token comment">// they were interleaved, for backwards compat reasons.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>
+      deferRenderPhaseUpdateToNextBatch <span class="token operator">||</span>
+      <span class="token punctuation">(</span>executionContext <span class="token operator">&amp;</span> RenderContext<span class="token punctuation">)</span> <span class="token operator">===</span> NoContext
+    <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      workInProgressRootUpdatedLanes <span class="token operator">=</span> <span class="token function">mergeLanes</span><span class="token punctuation">(</span>
+        workInProgressRootUpdatedLanes<span class="token punctuation">,</span>
+        lane<span class="token punctuation">,</span>
+      <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>workInProgressRootExitStatus <span class="token operator">===</span> RootSuspendedWithDelay<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// The root already suspended with a delay, which means this render</span>
+      <span class="token comment">// definitely won't finish. Since we have a new update, let's mark it as</span>
+      <span class="token comment">// suspended now, right before marking the incoming update. This has the</span>
+      <span class="token comment">// effect of interrupting the current render and switching to the update.</span>
+      <span class="token comment">// TODO: Make sure this doesn't override pings that happen while we've</span>
+      <span class="token comment">// already started rendering.</span>
+      <span class="token function">markRootSuspended</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> workInProgressRootRenderLanes<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 获取当前的优先级，react有五个优先级，后期在前concurrent模式的时候会讲</span>
+  <span class="token comment">// 没有优先级</span>
+	<span class="token comment">// export const NoPriority = 0;</span>
+	<span class="token comment">// 立即执行的优先级，同步执行的优先级</span>
+	<span class="token comment">// export const ImmediatePriority = 1;</span>
+	<span class="token comment">// 用户优先级，用户触发的优先级</span>
+	<span class="token comment">// export const UserBlockingPriority = 2;</span>
+	<span class="token comment">// 正常优先级，比如：请求数据</span>
+	<span class="token comment">// export const NormalPriority = 3;</span>
+ 	<span class="token comment">// 低优先级</span>
+	<span class="token comment">// export const LowPriority = 4;</span>
+	<span class="token comment">// 空闲优先级</span>
+	<span class="token comment">// export const IdlePriority = 5;</span>
+  <span class="token keyword">const</span> priorityLevel <span class="token operator">=</span> <span class="token function">getCurrentPriorityLevel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">// 同步任务</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>lane <span class="token operator">===</span> SyncLane<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>
+      <span class="token comment">// Check if we're inside unbatchedUpdates</span>
+      <span class="token punctuation">(</span>executionContext <span class="token operator">&amp;</span> LegacyUnbatchedContext<span class="token punctuation">)</span> <span class="token operator">!==</span> NoContext <span class="token operator">&amp;&amp;</span>
+      <span class="token comment">// Check if we're not already rendering</span>
+      <span class="token comment">// 表示尚未渲染</span>
+      <span class="token punctuation">(</span>executionContext <span class="token operator">&amp;</span> <span class="token punctuation">(</span>RenderContext <span class="token operator">|</span> CommitContext<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">===</span> NoContext
+    <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// Register pending interactions on the root to avoid losing traced interaction data.</span>
+      <span class="token function">schedulePendingInteractions</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lane<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token comment">// This is a legacy edge case. The initial mount of a ReactDOM.render-ed</span>
+      <span class="token comment">// root inside of batchedUpdates should be synchronous, but layout updates</span>
+      <span class="token comment">// should be deferred until the end of the batch.</span>
+      <span class="token comment">// 同步更新</span>
+      <span class="token comment">// root -&gt; fiberRoot.current</span>
+      <span class="token function">performSyncWorkOnRoot</span><span class="token punctuation">(</span>root<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token function">ensureRootIsScheduled</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> eventTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token function">schedulePendingInteractions</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lane<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>executionContext <span class="token operator">===</span> NoContext<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// Flush the synchronous work now, unless we're already working or inside</span>
+        <span class="token comment">// a batch. This is intentionally inside scheduleUpdateOnFiber instead of</span>
+        <span class="token comment">// scheduleCallbackForFiber to preserve the ability to schedule a callback</span>
+        <span class="token comment">// without immediately flushing it. We only do this for user-initiated</span>
+        <span class="token comment">// updates, to preserve historical behavior of legacy mode.</span>
+        <span class="token function">resetRenderTimer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">flushSyncCallbackQueue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span> <span class="token comment">// 异步任务</span>
+    <span class="token comment">// Schedule a discrete update but only if it's not Sync.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>
+      <span class="token punctuation">(</span>executionContext <span class="token operator">&amp;</span> DiscreteEventContext<span class="token punctuation">)</span> <span class="token operator">!==</span> NoContext <span class="token operator">&amp;&amp;</span>
+      <span class="token comment">// Only updates at user-blocking priority or greater are considered</span>
+      <span class="token comment">// discrete, even inside a discrete event.</span>
+      <span class="token punctuation">(</span>priorityLevel <span class="token operator">===</span> UserBlockingSchedulerPriority <span class="token operator">||</span>
+        priorityLevel <span class="token operator">===</span> ImmediateSchedulerPriority<span class="token punctuation">)</span>
+    <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// This is the result of a discrete event. Track the lowest priority</span>
+      <span class="token comment">// discrete update per root so we can flush them early, if needed.</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>rootsWithPendingDiscreteUpdates <span class="token operator">===</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        rootsWithPendingDiscreteUpdates <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Set</span><span class="token punctuation">(</span><span class="token punctuation">[</span>root<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        rootsWithPendingDiscreteUpdates<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>root<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// 异步更新任务的入口，此函数中会调用performConcurrentWorkOnRoot</span>
+    <span class="token function">ensureRootIsScheduled</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> eventTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">schedulePendingInteractions</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> lane<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// We use this when assigning a lane for a transition inside</span>
+  <span class="token comment">// `requestUpdateLane`. We assume it's the same as the root being updated,</span>
+  <span class="token comment">// since in the common case of a single root app it probably is. If it's not</span>
+  <span class="token comment">// the same root, then it's not a huge deal, we just might batch more stuff</span>
+  <span class="token comment">// together more than necessary.</span>
+  mostRecentlyUpdatedRoot <span class="token operator">=</span> root<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>至此为止，我们的流程可以全部串起来了，整个流程如下：</p> <br> <img src="/react-docs/assets/img/flow.f0c4aa0b.png"> <br> <h2 id="其他模式"><a href="#其他模式" class="header-anchor">#</a> 其他模式</h2> <p>React18以后React将有三种模式：</p> <ul><li>legacy： ReactDOM.render入口创建的模式</li> <li>blocking：开启部分<code>concurrent</code>模式特性的中间模式。目前正在实验中。作为迁移到<code>concurrent</code>模式的第一个步骤。</li> <li>concurrent：由<code>createRoot().render()</code>创建的模式。面向未来的开发模式。我们之前讲的<code>任务中断/任务优先级</code>都是针对<code>concurrent</code>模式。</li></ul> <p>以上三种模式的支持：</p> <table><thead><tr><th></th> <th>legacy</th> <th>blocking</th> <th>concurrent</th></tr></thead> <tbody><tr><td>String Refs</td> <td>✓</td> <td></td> <td></td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/legacy-context.html" target="_blank" rel="noopener noreferrer">Legacy Context<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td>✓</td> <td></td> <td></td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/strict-mode.html#warning-about-deprecated-finddomnode-usage" target="_blank" rel="noopener noreferrer">findDOMNode<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td>✓</td> <td></td> <td></td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/concurrent-mode-suspense.html#what-is-suspense-exactly" target="_blank" rel="noopener noreferrer">Suspense<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td>✓</td> <td>✓</td> <td>✓</td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/concurrent-mode-patterns.html#suspenselist" target="_blank" rel="noopener noreferrer">SuspenseList<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td></td> <td>✓</td> <td>✓</td></tr> <tr><td>Suspense SSR + Hydration</td> <td></td> <td>✓</td> <td>✓</td></tr> <tr><td>Progressive Hydration</td> <td></td> <td>✓</td> <td>✓</td></tr> <tr><td>Selective Hydration</td> <td></td> <td></td> <td>✓</td></tr> <tr><td>Cooperative Multitasking</td> <td></td> <td></td> <td>✓</td></tr> <tr><td>Automatic batching of multiple setStates</td> <td></td> <td>✓</td> <td>✓</td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/concurrent-mode-patterns.html#splitting-high-and-low-priority-state" target="_blank" rel="noopener noreferrer">Priority-based Rendering<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td></td> <td></td> <td>✓</td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/concurrent-mode-intro.html#interruptible-rendering" target="_blank" rel="noopener noreferrer">Interruptible Prerendering<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td></td> <td></td> <td>✓</td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/concurrent-mode-patterns.html#transitions" target="_blank" rel="noopener noreferrer">useTransition<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td></td> <td></td> <td>✓</td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/concurrent-mode-patterns.html#deferring-a-value" target="_blank" rel="noopener noreferrer">useDeferredValue<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td></td> <td></td> <td>✓</td></tr> <tr><td><a href="https://zh-hans.reactjs.org/docs/concurrent-mode-patterns.html#suspense-reveal-train" target="_blank" rel="noopener noreferrer">Suspense Reveal &quot;Train&quot;<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></td> <td></td> <td></td> <td>✓</td></tr></tbody></table> <h2 id="this-setstate"><a href="#this-setstate" class="header-anchor">#</a> this.setState</h2> <p>有了前面的支持，我们理解setState就很容易了。</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code>Component<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span><span class="token function-variable function">setState</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">partialState<span class="token punctuation">,</span> callback</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token function">invariant</span><span class="token punctuation">(</span>
+    <span class="token keyword">typeof</span> partialState <span class="token operator">===</span> <span class="token string">'object'</span> <span class="token operator">||</span>
+      <span class="token keyword">typeof</span> partialState <span class="token operator">===</span> <span class="token string">'function'</span> <span class="token operator">||</span>
+      partialState <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">'setState(...): takes an object of state variables to update or a '</span> <span class="token operator">+</span>
+      <span class="token string">'function which returns an object of state variables.'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">this</span><span class="token punctuation">.</span>updater<span class="token punctuation">.</span><span class="token function">enqueueSetState</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> partialState<span class="token punctuation">,</span> callback<span class="token punctuation">,</span> <span class="token string">'setState'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>有上面的代码，可以看出，setState最终会调用<code>this.updater.enqueueSetState</code>，下面我们看<code>this.updater.enqueueSetState</code>函数。</p> <p><code>this.updater.enqueueSetState</code>函数在<code>ReactFiberClassComponent.*.js</code>中，代码如下：</p> <div class="language-tsx extra-class"><pre class="language-tsx"><code><span class="token function">enqueueSetState</span><span class="token punctuation">(</span><span class="token parameter">inst<span class="token punctuation">,</span> payload<span class="token punctuation">,</span> callback</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> fiber <span class="token operator">=</span> <span class="token function">getInstance</span><span class="token punctuation">(</span>inst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> eventTime <span class="token operator">=</span> <span class="token function">requestEventTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> lane <span class="token operator">=</span> <span class="token function">requestUpdateLane</span><span class="token punctuation">(</span>fiber<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">const</span> update <span class="token operator">=</span> <span class="token function">createUpdate</span><span class="token punctuation">(</span>eventTime<span class="token punctuation">,</span> lane<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    update<span class="token punctuation">.</span>payload <span class="token operator">=</span> payload<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>callback <span class="token operator">!==</span> <span class="token keyword">undefined</span> <span class="token operator">&amp;&amp;</span> callback <span class="token operator">!==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>__DEV__<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">warnOnInvalidCallback</span><span class="token punctuation">(</span>callback<span class="token punctuation">,</span> <span class="token string">'setState'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      update<span class="token punctuation">.</span>callback <span class="token operator">=</span> callback<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">enqueueUpdate</span><span class="token punctuation">(</span>fiber<span class="token punctuation">,</span> update<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">scheduleUpdateOnFiber</span><span class="token punctuation">(</span>fiber<span class="token punctuation">,</span> lane<span class="token punctuation">,</span> eventTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>__DEV__<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>enableDebugTracing<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>fiber<span class="token punctuation">.</span>mode <span class="token operator">&amp;</span> DebugTracingMode<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          <span class="token keyword">const</span> name <span class="token operator">=</span> <span class="token function">getComponentName</span><span class="token punctuation">(</span>fiber<span class="token punctuation">.</span><span class="token keyword">type</span><span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token string">'Unknown'</span><span class="token punctuation">;</span>
+          <span class="token function">logStateUpdateScheduled</span><span class="token punctuation">(</span>name<span class="token punctuation">,</span> lane<span class="token punctuation">,</span> payload<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>enableSchedulingProfiler<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">markStateUpdateScheduled</span><span class="token punctuation">(</span>fiber<span class="token punctuation">,</span> lane<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+</code></pre></div><p>由代码可以看出，在<code>enqueueSetState</code>只做了两件事：</p> <ul><li>创建update</li> <li>调用<code>scheduleUpdateOnFiber</code></li></ul> <p>至此，我们更新流程全部完成，下一章我们就进入Hooks</p></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">7/24/2021, 8:46:04 AM</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/react-docs/state/state.html" class="prev">
+        概览
+      </a></span> <!----></p></div> </main></div><div class="global-ui"><!----></div></div>
+    <script src="/react-docs/assets/js/app.8dcc01f4.js" defer></script><script src="/react-docs/assets/js/2.ba3186f0.js" defer></script><script src="/react-docs/assets/js/9.c78a0cc5.js" defer></script>
+  </body>
+</html>
