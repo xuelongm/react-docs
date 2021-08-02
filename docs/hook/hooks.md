@@ -1,4 +1,6 @@
-> *Hook* 是 React 16.8 的新增特性。它可以让你在不编写 class 的情况下使用 state 以及其他的 React 特性。
+> *Hooks* 是 React 16.8 的新增特性。它可以让你在不编写 class 的情况下使用 state 以及其他的 React 特性。
+>
+> *Hooks*是`FunctionComponent`的补充，不会替代`ClassComponent`
 
 ## 没有破坏性改动
 
@@ -698,5 +700,274 @@ function updateRef<T>(initialValue: T): {|current: T|} {
 
 由代码可以看出，`useRef`的实现相当简单。
 
+## useEffect 和 useLayoutEffect
+
+`useEffect`和`useLayoutEffect`都是执行副作用的`Hooks`，只是执行的时机不同。
+
+与 `componentDidMount`、`componentDidUpdate` 不同的是，在浏览器完成布局与绘制**之后**，传给 `useEffect` 的函数会延迟调用。这使得它适用于许多常见的副作用场景，比如设置订阅和事件处理等情况，因此不应在函数中执行阻塞浏览器更新屏幕的操作。
+
+然而，并非所有 effect 都可以被延迟执行。例如，在浏览器执行下一次绘制前，用户可见的 DOM 变更就必须同步执行，这样用户才不会感觉到视觉上的不一致。（概念上类似于被动监听事件和主动监听事件的区别。）React 为此提供了一个额外的 [`useLayoutEffect`](https://react.docschina.org/docs/hooks-reference.html#uselayouteffect) Hook 来处理这类 effect。它和 `useEffect` 的结构相同，区别只是调用时机不同。
+
+虽然 `useEffect` 会在浏览器绘制后延迟执行，但会保证在任何新的渲染前执行。React 将在组件更新前刷新上一轮渲染的 effect。
+
+### mount
+
+```tsx
+function mountEffect(
+  create: () => (() => void) | void,
+  deps: Array<mixed> | void | null,
+): void {
+  return mountEffectImpl(
+    UpdateEffect | PassiveEffect,
+    HookPassive,
+    create,
+    deps,
+  );
+}
+
+function mountLayoutEffect(
+  create: () => (() => void) | void,
+  deps: Array<mixed> | void | null,
+): void {
+  return mountEffectImpl(UpdateEffect, HookLayout, create, deps);
+}
 
 
+```
+
+有代码可以看出，`useEffect`和`useLayoutEffect`都是调用`mountEffectImpl`函数，`useEffect`传入的参数为`HookPassive`，而`useLayoutEffect`为`HookLayout`。
+
+那么让我们来看看`mountEffectImpl`的实现：
+
+```tsx
+function mountEffectImpl(fiberFlags, hookFlags, create, deps): void {
+  const hook = mountWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  currentlyRenderingFiber.flags |= fiberFlags;
+  hook.memoizedState = pushEffect(
+    HookHasEffect | hookFlags,
+    create,
+    undefined,
+    nextDeps,
+  );
+}
+
+function pushEffect(tag, create, destroy, deps) {
+  const effect: Effect = {
+    tag,
+    create,
+    destroy,
+    deps,
+    // Circular
+    next: (null: any),
+  };
+  let componentUpdateQueue: null | FunctionComponentUpdateQueue = (currentlyRenderingFiber.updateQueue: any);
+  if (componentUpdateQueue === null) {
+    componentUpdateQueue = createFunctionComponentUpdateQueue();
+    currentlyRenderingFiber.updateQueue = (componentUpdateQueue: any);
+    componentUpdateQueue.lastEffect = effect.next = effect;
+  } else {
+    const lastEffect = componentUpdateQueue.lastEffect;
+    if (lastEffect === null) {
+      componentUpdateQueue.lastEffect = effect.next = effect;
+    } else {
+      const firstEffect = lastEffect.next;
+      lastEffect.next = effect;
+      effect.next = firstEffect;
+      componentUpdateQueue.lastEffect = effect;
+    }
+  }
+  return effect;
+}
+```
+
+在`mountEffectImpl`函数中所做的只是，获取`hook`，通过`pushEffect`函数将`effect`挂载到`hoook.memoizedState`上。
+
+`pushEffect`所做的只是将`effect`形成一个环状链表，并将最后一个节点，返回。
+
+> 注意：effect的数据结构中包含：tag（类型），create（effect函数），destroy（effect函数的返回函数），deps（依赖性），next（下一个）
+
+### update
+
+和`mount`阶段想同，`useEffect`和`useLayoutEffect`想同，底层都是调用[`updateEffectImpl`](https://github.com/facebook/react/blob/1fb18e22ae66fdb1dc127347e169e73948778e5a/packages/react-reconciler/src/ReactFiberWorkLoop.old.js#L2458)函数，唯一却别的就是传参不同。
+
+```tsx
+function updateEffectImpl(fiberFlags, hookFlags, create, deps): void {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  let destroy = undefined;
+	
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState;
+    destroy = prevEffect.destroy;
+    // 判断deps
+    if (nextDeps !== null) {
+      const prevDeps = prevEffect.deps;
+      // 相同
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        pushEffect(hookFlags, create, destroy, nextDeps);
+        return;
+      }
+    }
+  }
+
+  currentlyRenderingFiber.flags |= fiberFlags;
+	// deps 不相同
+  hook.memoizedState = pushEffect(
+    HookHasEffect | hookFlags,
+    create,
+    destroy,
+    nextDeps,
+  );
+}
+
+```
+
+从上面代码，不知道同学会不会产生一个疑问，什么**deps**相同的情况也进行了了`pushEffect`？有代码可以看出**deps**相同和不相同两次`pushEffect`的参数是不同
+
+- 相同：hookFlags
+- 不相同： HookHasEffect | hookFlags
+
+这是为什么呢？
+
+我们都知道，`effect`是保存在一个环状链表中的，这个链表中元素的个数和位置不能发生变换的，如果发生变化就可能导致一些错误出现，所以React为了简化检查，无论什么情况都将`effect`加入到链表中，在执行阶段根据`tag`中是否含有`HookHasEffect`，进行判读是否执行。
+
+### 执行流程
+
+在上面的章节我们讲过，在commit阶段的`commitBeforeMutationEffects`函数中，会调度`effect`
+
+```tsx
+if ((flags & Passive) !== NoFlags) {
+  // If there are passive effects, schedule a callback to flush at
+  // the earliest opportunity.
+  if (!rootDoesHavePassiveEffects) {
+    rootDoesHavePassiveEffects = true;
+    // 调度effect
+    scheduleCallback(NormalSchedulerPriority, () => {
+      flushPassiveEffects();
+      return null;
+    });
+  }
+}
+```
+
+而在commit的layout阶段（`commitLifeCycles`）中，将要执行的`effect`加入到数组中，等待执行
+
+```tsx
+function schedulePassiveEffects(finishedWork: Fiber) {
+  const updateQueue: FunctionComponentUpdateQueue | null = (finishedWork.updateQueue: any);
+  const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
+  if (lastEffect !== null) {
+    const firstEffect = lastEffect.next;
+    let effect = firstEffect;
+    do {
+      const {next, tag} = effect;
+      if (
+        (tag & HookPassive) !== NoHookEffect &&
+        (tag & HookHasEffect) !== NoHookEffect
+      ) {
+        // 将effect加入到数组中，等待被调度执行
+        enqueuePendingPassiveHookEffectUnmount(finishedWork, effect);
+        enqueuePendingPassiveHookEffectMount(finishedWork, effect);
+      }
+      effect = next;
+    } while (effect !== firstEffect);
+  }
+}
+
+export function enqueuePendingPassiveHookEffectMount(
+  fiber: Fiber,
+  effect: HookEffect,
+): void {
+  pendingPassiveHookEffectsMount.push(effect, fiber);
+  if (!rootDoesHavePassiveEffects) {
+    rootDoesHavePassiveEffects = true;
+    scheduleCallback(NormalSchedulerPriority, () => {
+      flushPassiveEffects();
+      return null;
+    });
+  }
+}
+
+export function enqueuePendingPassiveHookEffectUnmount(
+  fiber: Fiber,
+  effect: HookEffect,
+): void {
+  pendingPassiveHookEffectsUnmount.push(effect, fiber);
+  if (__DEV__) {
+    fiber.flags |= PassiveUnmountPendingDev;
+    const alternate = fiber.alternate;
+    if (alternate !== null) {
+      alternate.flags |= PassiveUnmountPendingDev;
+    }
+  }
+  if (!rootDoesHavePassiveEffects) {
+    rootDoesHavePassiveEffects = true;
+    scheduleCallback(NormalSchedulerPriority, () => {
+      flushPassiveEffects();
+      return null;
+    });
+  }
+}
+
+```
+
+由代码可以看出，`effect`会被加入到两个数组中，`pendingPassiveHookEffectsUnmount`和`pendingPassiveHookEffectsMount`，这两个数组会在`flushPassiveEffects`被调用。
+
+### flushPassiveEffects
+
+`flushPassiveEffects`函数最终实现为`flushPassiveEffectsImpl`
+
+```tsx
+function flushPassiveEffectsImpl() {
+    if (rootWithPendingPassiveEffects === null) {
+      return false;
+    }
+  
+    const root = rootWithPendingPassiveEffects;
+    const lanes = pendingPassiveEffectsLanes;
+    rootWithPendingPassiveEffects = null;
+    pendingPassiveEffectsLanes = NoLanes;
+
+    if (enableSchedulingProfiler) {
+      markPassiveEffectsStarted(lanes);
+    }
+  
+    const prevExecutionContext = executionContext;
+    executionContext |= CommitContext;
+    const prevInteractions = pushInteractions(root);
+  
+    // First pass: Destroy stale passive effects.
+    // 上次执行的useEffect的销毁函数
+    const unmountEffects = pendingPassiveHookEffectsUnmount;
+    pendingPassiveHookEffectsUnmount = [];
+    for (let i = 0; i < unmountEffects.length; i += 2) {
+      const effect = ((unmountEffects[i]: any): HookEffect);
+      const fiber = ((unmountEffects[i + 1]: any): Fiber);
+      const destroy = effect.destroy;
+      effect.destroy = undefined;
+  
+     
+      // 如果destroy不为undefined，执行销毁函数
+      if (typeof destroy === 'function') {
+          destroy();
+      }
+    }
+    // Second pass: Create new passive effects.
+    // 执行本次的useEffect
+    const mountEffects = pendingPassiveHookEffectsMount;
+    pendingPassiveHookEffectsMount = [];
+    for (let i = 0; i < mountEffects.length; i += 2) {
+      const effect = ((mountEffects[i]: any): HookEffect);
+      const fiber = ((mountEffects[i + 1]: any): Fiber);
+      effect.destroy = create();
+    }
+}
+```
+
+我们省略一部分代码，可以看出，此函数主要做两件事：
+
+- 通过`pendingPassiveHookEffectsUnmount`调用`destroy`函数
+- 通过`pendingPassiveHookEffectsMount`调用`create`函数
+
+至此`Hooks`章节完成，`concurrent`模式我们在react18后补全。
