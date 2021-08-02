@@ -44,6 +44,12 @@ module.exports = {
                     '/state/state.md',
                     '/state/render.md'
                 ]
+            },
+            {
+                title: 'hooks',
+                children: [
+                    {title: 'hooks', path: '/hook/hooks.md'}
+                ]
             }
 
         ],
